@@ -8,6 +8,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/anguloc/zet/internal/pkg/safe"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,6 +28,7 @@ type Application struct {
 
 	workers      map[string]IWorker
 	workerCancel map[string]context.CancelFunc
+	mainCancel   context.CancelFunc
 }
 
 func New() IApplication {
@@ -71,11 +73,13 @@ func (app *Application) initWorker(ctx context.Context) error {
 
 func (app *Application) Run(ctx context.Context) (err error) {
 	app.startOnce.Do(func() {
-		if err = app.startWorker(ctx); err != nil {
+		cCtx, cancel := context.WithCancel(ctx)
+		app.mainCancel = cancel
+		if err = app.startWorker(cCtx); err != nil {
 			return
 		}
 
-		if err = app.wait(ctx); err != nil {
+		if err = app.wait(cCtx); err != nil {
 			return
 		}
 	})
@@ -83,15 +87,14 @@ func (app *Application) Run(ctx context.Context) (err error) {
 }
 
 func (app *Application) startWorker(ctx context.Context) error {
-	app.mu.Lock()
-	defer app.mu.Unlock()
 	app.wg.Add(len(app.workers))
 	for name, worker := range app.workers {
 		w := worker
 		cCtx, cancel := context.WithCancel(ctx)
 		app.workerCancel[name] = cancel
-		Go(cCtx, func(ctx context.Context) {
-			if err := w.Start(ctx); err != nil {
+		safe.Go(cCtx, func(ctx context.Context) {
+			defer app.wg.Done()
+			if err := w.Run(ctx); err != nil {
 				// TODO log
 			}
 		}, nil)
@@ -100,20 +103,9 @@ func (app *Application) startWorker(ctx context.Context) error {
 }
 
 func (app *Application) stopWorker(ctx context.Context, graceful bool) error {
+	// TODO force stop
 	app.stopOnce.Do(func() {
-		for name, worker := range app.workers {
-			w := worker
-			cancelFunc := app.workerCancel[name]
-			Go(ctx, func(ctx context.Context) {
-				defer app.wg.Done()
-				cancelFunc()
-				if graceful {
-					_ = w.GracefulStop(ctx)
-				} else {
-					_ = w.Stop(ctx)
-				}
-			}, nil)
-		}
+		app.mainCancel()
 	})
 	return nil
 }
@@ -140,23 +132,4 @@ func (app *Application) RegisterWorker(name string, worker IWorker) {
 	app.mu.Lock()
 	defer app.mu.Unlock()
 	app.workers[name] = worker
-}
-
-func Go(ctx context.Context, handle func(ctx context.Context), rh func(r interface{})) {
-	p := func() {
-		if r := recover(); r != nil {
-			// TODO log
-			if rh == nil {
-				return
-			}
-			Go(ctx, func(ctx context.Context) {
-				rh(r)
-			}, nil)
-		}
-	}
-
-	go func() {
-		defer p()
-		handle(ctx)
-	}()
 }
