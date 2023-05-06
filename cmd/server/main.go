@@ -15,8 +15,9 @@ func main() {
 
 	app := application.New()
 
-	app.RegisterWorker("foo", &worker.FooWorker{})
-	app.RegisterWorker("bar", &worker.BarWorker{})
+	// app.RegisterWorker("foo", &worker.FooWorker{})
+	// app.RegisterWorker("bar", &worker.BarWorker{})
+	app.RegisterWorker("bar", &worker.AnimationRss{})
 
 	if err = app.Init(ctx, ""); err != nil {
 		fmt.Println(err)
