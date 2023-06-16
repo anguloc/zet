@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 var Cmd = &cobra.Command{
 	Use:   "rss",
 	Short: "rss",
-	Long:  "rss",
+	Long:  "Really Simple Syndication",
 	Run:   Run,
 }
 
