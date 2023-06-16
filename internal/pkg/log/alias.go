@@ -50,4 +50,5 @@ var (
 	Duration    = zap.Duration
 	Durationp   = zap.Durationp
 	Any         = zap.Any
+	NamedError  = zap.NamedError
 )

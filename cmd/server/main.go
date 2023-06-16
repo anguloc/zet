@@ -2,18 +2,41 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/anguloc/zet/internal/app/worker"
 	"github.com/anguloc/zet/internal/pkg/application"
+	"github.com/anguloc/zet/internal/pkg/conf"
+	"github.com/anguloc/zet/internal/pkg/safe"
 )
+
+var config string
 
 func main() {
 	var err error
 	ctx := context.TODO()
 
+	flag.StringVar(&config, "config", "conf/conf.yml", "config path")
+	flag.Parse()
+
+	config = safe.Path(config)
+	if err = conf.Init(config); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	return
+
 	app := application.New()
+
+	println(1)
+
+	println(os.Getwd())
+	println(os.Executable())
+
+	return
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})

@@ -6,7 +6,24 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var conf = &Config{}
+var conf = &Config{
+	Global: Global{
+		KvType: "mem",
+		TmpDir: "tmp",
+	},
+	DBZet: Mysql{
+		Host:         "127.0.0.1",
+		Port:         "3306",
+		DBName:       "zet",
+		User:         "",
+		Password:     "",
+		Config:       "charset=utf8mb4&parseTime=true&loc=Local",
+		MaxIdleConns: 10,
+		MaxOpenConns: 30,
+		MaxLifeTime:  300,
+		MaxIdleTime:  300,
+	},
+}
 
 func Conf() *Config {
 	return conf
@@ -28,7 +45,13 @@ func Init(config string) error {
 }
 
 type Config struct {
-	DBZet Mysql `mapstructure:"db_zet" json:"db_zet" yaml:"db_zet"`
+	Global Global `mapstructure:"global" json:"global" yaml:"global"`
+	DBZet  Mysql  `mapstructure:"db_zet" json:"db_zet" yaml:"db_zet"`
+}
+
+type Global struct {
+	KvType string `mapstructure:"kv_type" json:"kv_type" yaml:"kv_type"`
+	TmpDir string `mapstructure:"tmp_dir" json:"tmp_dir" yaml:"tmp_dir"`
 }
 
 type Mysql struct {
