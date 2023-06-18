@@ -2,10 +2,9 @@ package query
 
 import (
 	"context"
+	"github.com/anguloc/zet/internal/app/rss/client"
+	"github.com/anguloc/zet/internal/dto"
 	"io"
-	"net"
-	"net/http"
-	"time"
 )
 
 var dmhyUrl = []string{
@@ -13,44 +12,41 @@ var dmhyUrl = []string{
 }
 
 type Dmhy struct {
-	url string
+	url    string
+	client client.IClient
 }
 
-func NewDmhy() IQuery {
-	return &Dmhy{}
-}
-
-func (q *Dmhy) Get(ctx context.Context) (*Result, error) {
-	client := &http.Client{
-		Transport: &http.Transport{
-			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-				hosts := map[string]string{
-					"www.dmhy.org:443": "172.67.98.15:443",
-				}
-				if n, ok := hosts[addr]; ok {
-					addr = n
-				}
-				d := &net.Dialer{
-					Timeout: time.Second * 10,
-				}
-				return d.DialContext(ctx, network, addr)
-			},
-		},
+func NewDmhy() *Dmhy {
+	return &Dmhy{
+		client: client.New(client.WithModule(dto.DmhyModule)),
 	}
-	rsp, err := client.Get(q.getUrl())
+}
+
+func (d *Dmhy) Command(ctx context.Context) error {
+	return nil
+}
+
+func (d *Dmhy) Get(ctx context.Context) (*Result, error) {
+	res, err := d.client.Get(ctx, d.getUrl())
 	if err != nil {
-		return nil, rsp.StatusCode, err
+		return nil, err
 	}
-	defer rsp.Body.Close()
+	rsp := res.HttpResponse
+	defer func() { _ = rsp.Body.Close() }()
 
 	body, err := io.ReadAll(rsp.Body)
-
-	return body, rsp.StatusCode, err
+	if err != nil {
+		return nil, err
+	}
+	return &Result{
+		HttpStatusCode: rsp.StatusCode,
+		Data:           body,
+	}, nil
 }
 
-func (q *Dmhy) getUrl() string {
-	if q.url == "" {
+func (d *Dmhy) getUrl() string {
+	if d.url == "" {
 		return dmhyUrl[0]
 	}
-	return q.url
+	return d.url
 }

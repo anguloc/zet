@@ -55,13 +55,13 @@ func (w *AnimationRss) handle(ctx context.Context) {
 	}
 
 	// 解析资源
-	data, err := w.parseResource(ctx, repo, w.getRssUrlList())
-	if err != nil {
-
-	}
+	//data, err := w.parseResource(ctx, repo, w.getRssUrlList())
+	//if err != nil {
+	//
+	//}
 
 	// 获取所有关键词
-	keywords := []string{"我推的孩子"}
+	//keywords := []string{"我推的孩子"}
 
 	// 匹配资源
 	// 异步获取
@@ -144,42 +144,4 @@ func (w *AnimationRss) parseResource(ctx context.Context, repo kv.IKV, rss map[s
 	}
 
 	return res, nil
-}
-
-type rssData struct {
-	XMLName xml.Name `xml:"rss"`
-	Text    string   `xml:",chardata"`
-	Version string   `xml:"version,attr"`
-	Content string   `xml:"content,attr"`
-	Wfw     string   `xml:"wfw,attr"`
-	Channel struct {
-		Text        string `xml:",chardata"`
-		Title       string `xml:"title"`
-		Link        string `xml:"link"`
-		Description string `xml:"description"`
-		Language    string `xml:"language"`
-		PubDate     string `xml:"pubDate"`
-		Item        []struct {
-			Text        string `xml:",chardata"`
-			Title       string `xml:"title"`
-			Link        string `xml:"link"`
-			PubDate     string `xml:"pubDate"`
-			Description string `xml:"description"`
-			Enclosure   struct {
-				Text   string `xml:",chardata"`
-				URL    string `xml:"url,attr"`
-				Length string `xml:"length,attr"`
-				Type   string `xml:"type,attr"`
-			} `xml:"enclosure"`
-			Author string `xml:"author"`
-			Guid   struct {
-				Text        string `xml:",chardata"`
-				IsPermaLink string `xml:"isPermaLink,attr"`
-			} `xml:"guid"`
-			Category struct {
-				Text   string `xml:",chardata"`
-				Domain string `xml:"domain,attr"`
-			} `xml:"category"`
-		} `xml:"item"`
-	} `xml:"channel"`
 }
