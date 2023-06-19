@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+
 	"github.com/anguloc/zet/internal/pkg/log"
 )
 
@@ -16,9 +17,9 @@ func NewDmhy() *Dmhy {
 	return &Dmhy{}
 }
 
-func (d *Dmhy) SetData(data []byte) error {
+func (d *Dmhy) SetData(data []byte) IParse {
 	d.data = data
-	return nil
+	return d
 }
 
 func (d *Dmhy) Run(ctx context.Context) (*Result, error) {

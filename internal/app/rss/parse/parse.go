@@ -2,11 +2,12 @@ package parse
 
 import (
 	"context"
+
 	"github.com/anguloc/zet/internal/dto"
 )
 
 type IParse interface {
-	SetData(data []byte) error
+	SetData(data []byte) IParse
 	Run(ctx context.Context) (*Result, error)
 }
 

@@ -13,8 +13,8 @@ func NewDefault() *Default {
 	return &Default{}
 }
 
-func (d *Default) SetData(bytes []byte) error {
-	return ModuleMissingErr
+func (d *Default) SetData(bytes []byte) IParse {
+	return d
 }
 
 func (d *Default) Run(ctx context.Context) (*Result, error) {
