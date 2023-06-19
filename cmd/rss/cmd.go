@@ -1,6 +1,9 @@
 package rss
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/anguloc/zet/internal/app/rss"
+	"github.com/spf13/cobra"
+)
 
 var Cmd = &cobra.Command{
 	Use:   "rss",
@@ -13,5 +16,6 @@ func init() {
 }
 
 func Run(cmd *cobra.Command, args []string) {
-
+	biz := rss.NewDmhy()
+	biz.Run(ctx)
 }
