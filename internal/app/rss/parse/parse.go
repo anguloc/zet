@@ -4,14 +4,12 @@ import (
 	"context"
 
 	"github.com/anguloc/zet/internal/dto"
+	"github.com/anguloc/zet/internal/dto/rss"
 )
 
 type IParse interface {
 	SetData(data []byte) IParse
-	Run(ctx context.Context) (*Result, error)
-}
-
-type Result struct {
+	Run(ctx context.Context) (*rss.List, error)
 }
 
 func New(opts ...OptionFunc) IParse {

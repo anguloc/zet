@@ -2,10 +2,12 @@ package parse
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/anguloc/zet/internal/dto/rss"
+	"github.com/stretchr/testify/assert"
 )
 
 // go test ./internal/app/rss/parse -v -run TestDmhy_Run$ --count=1
@@ -31,7 +33,7 @@ func TestDmhy_Run(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *Result
+		want    *rss.List
 		wantErr bool
 	}{
 		{

@@ -2,10 +2,10 @@ package parse
 
 import (
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 
+	"github.com/anguloc/zet/internal/dto/rss"
 	"github.com/anguloc/zet/internal/pkg/log"
 )
 
@@ -22,20 +22,21 @@ func (d *Dmhy) SetData(data []byte) IParse {
 	return d
 }
 
-func (d *Dmhy) Run(ctx context.Context) (*Result, error) {
+func (d *Dmhy) Run(ctx context.Context) (*rss.List, error) {
 	data := &dmhyData{}
 	if err := xml.Unmarshal(d.data, data); err != nil {
-		fmt.Println(err)
+		log.Error(ctx, "DmhyXmlParseErr", log.NamedError("err", err))
 		return nil, err
-		log.Error(ctx, "xmlParseErr", log.NamedError("err", err))
 	}
-	println(len(data.Channel.Item))
+	res := &rss.List{}
+	res.Data = make([]*rss.Item, 0, len(data.Channel.Item))
+
 	for _, v := range data.Channel.Item {
 		println(v.Title)
+		rss.Data = append(rss.Data, &rss.Item{
+			Title: v.Title,
+		})
 	}
-	res, _ := json.MarshalIndent(data.Channel.Item[0], "", "\t")
-	println(string(res))
-	fmt.Printf("%+v", data.Channel.Item[0])
 	return nil, fmt.Errorf("a")
 }
 
