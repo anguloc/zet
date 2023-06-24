@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"time"
 
-	"github.com/anguloc/zet/internal/dto/rss"
+	"github.com/anguloc/zet/internal/app/rss"
 	"github.com/anguloc/zet/internal/pkg/log"
 )
 
@@ -28,12 +29,14 @@ func (d *Dmhy) Run(ctx context.Context) (*rss.List, error) {
 		log.Error(ctx, "DmhyXmlParseErr", log.NamedError("err", err))
 		return nil, err
 	}
-	res := &rss.List{}
+	res := &rss.List{
+		StartTime: time.Now().Unix(),
+	}
 	res.Data = make([]*rss.Item, 0, len(data.Channel.Item))
 
 	for _, v := range data.Channel.Item {
 		println(v.Title)
-		rss.Data = append(rss.Data, &rss.Item{
+		res.Data = append(res.Data, &rss.Item{
 			Title: v.Title,
 		})
 	}

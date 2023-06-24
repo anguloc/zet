@@ -3,8 +3,8 @@ package parse
 import (
 	"context"
 
+	"github.com/anguloc/zet/internal/app/rss"
 	"github.com/anguloc/zet/internal/dto"
-	"github.com/anguloc/zet/internal/dto/rss"
 )
 
 type IParse interface {

@@ -2,11 +2,12 @@ package rss
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/anguloc/zet/internal/app/rss/parse"
 	"github.com/anguloc/zet/internal/app/rss/query"
 	"github.com/anguloc/zet/internal/dto"
-	"github.com/anguloc/zet/internal/pkg/console"
 )
 
 type Dmhy struct {
@@ -21,17 +22,68 @@ func NewDmhy() *Dmhy {
 	}
 }
 
+var MissDataErr = fmt.Errorf("failed to miss data")
+
 func (d *Dmhy) Run(ctx context.Context) error {
 	queryRes, err := d.query.Get(ctx)
 	if err != nil {
-		console.Errorf("请求rss失败,%s", err)
-		return err
-	}
-	parseRes, err := d.parse.SetData(queryRes.Data).Run(ctx)
-	if err != nil {
-		console.Errorf("解析rss失败,%s", err)
 		return err
 	}
 
+	parseRes, err := d.parse.SetData(queryRes.Data).Run(ctx)
+	if err != nil {
+		return err
+	}
+
+	list, err := d.filter(parseRes)
+	if err != nil {
+		return err
+	}
+
+	if err = d.push(list); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Dmhy) filter(list *List) (*TransmissionList, error) {
+	var err error
+	if len(list.Data) == 0 {
+		return nil, MissDataErr
+	}
+	res := &TransmissionList{
+		StartTime: time.Now().Unix(),
+	}
+
+	fns := []func(*Item) error{
+		d.filterTitle,
+		d.filterAuthor,
+	}
+
+	for _, v := range list.Data {
+		for _, fn := range fns {
+			if err = fn(v); err != nil {
+				continue
+			}
+		}
+	}
+
+	if len(res.Data) == 0 {
+		return nil, MissDataErr
+	}
+
+	return nil, nil
+}
+
+func (d *Dmhy) filterTitle(item *Item) error {
+	return nil
+}
+
+func (d *Dmhy) filterAuthor(item *Item) error {
+	return nil
+}
+
+func (d *Dmhy) push(list *TransmissionList) error {
 	return nil
 }

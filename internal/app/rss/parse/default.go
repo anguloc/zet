@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anguloc/zet/internal/dto/rss"
+	"github.com/anguloc/zet/internal/app/rss"
 )
 
 type Default struct{}

@@ -2,6 +2,7 @@ package rss
 
 import (
 	"github.com/anguloc/zet/internal/app/rss"
+	"github.com/anguloc/zet/internal/pkg/console"
 	"github.com/spf13/cobra"
 )
 
@@ -17,5 +18,8 @@ func init() {
 
 func Run(cmd *cobra.Command, args []string) {
 	biz := rss.NewDmhy()
-	biz.Run(ctx)
+	err := biz.Run(cmd.Context())
+	if err != nil {
+		console.Error(err)
+	}
 }
