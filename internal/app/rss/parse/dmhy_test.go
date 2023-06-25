@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/anguloc/zet/internal/app/rss/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestDmhy_Run(t *testing.T) {
 
 	ctx := context.Background()
 	file := "testdata/dmhy.rss"
-	data, err := os.ReadFile(file)
+	fileData, err := os.ReadFile(file)
 	assert.Nil(t, err)
 	if err != nil {
 		return
@@ -38,7 +39,7 @@ func TestDmhy_Run(t *testing.T) {
 		{
 			name: "正常解析",
 			fields: fields{
-				data: data,
+				data: fileData,
 			},
 			args:    a,
 			want:    nil,
