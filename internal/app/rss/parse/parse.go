@@ -3,13 +3,13 @@ package parse
 import (
 	"context"
 
-	"github.com/anguloc/zet/internal/app/rss"
+	"github.com/anguloc/zet/internal/app/rss/data"
 	"github.com/anguloc/zet/internal/dto"
 )
 
 type IParse interface {
 	SetData(data []byte) IParse
-	Run(ctx context.Context) (*rss.List, error)
+	Run(ctx context.Context) (*data.List, error)
 }
 
 func New(opts ...OptionFunc) IParse {

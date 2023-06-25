@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anguloc/zet/internal/app/rss"
+	"github.com/anguloc/zet/internal/app/rss/data"
 	"github.com/anguloc/zet/internal/pkg/log"
 )
 
@@ -23,20 +23,20 @@ func (d *Dmhy) SetData(data []byte) IParse {
 	return d
 }
 
-func (d *Dmhy) Run(ctx context.Context) (*rss.List, error) {
-	data := &dmhyData{}
-	if err := xml.Unmarshal(d.data, data); err != nil {
+func (d *Dmhy) Run(ctx context.Context) (*data.List, error) {
+	raw := &dmhyData{}
+	if err := xml.Unmarshal(d.data, raw); err != nil {
 		log.Error(ctx, "DmhyXmlParseErr", log.NamedError("err", err))
 		return nil, err
 	}
-	res := &rss.List{
+	res := &data.List{
 		StartTime: time.Now().Unix(),
 	}
-	res.Data = make([]*rss.Item, 0, len(data.Channel.Item))
+	res.Data = make([]*data.Item, 0, len(raw.Channel.Item))
 
-	for _, v := range data.Channel.Item {
+	for _, v := range raw.Channel.Item {
 		println(v.Title)
-		res.Data = append(res.Data, &rss.Item{
+		res.Data = append(res.Data, &data.Item{
 			Title: v.Title,
 		})
 	}

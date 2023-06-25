@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anguloc/zet/internal/app/rss"
+	"github.com/anguloc/zet/internal/app/rss/data"
 )
 
 type Default struct{}
@@ -19,6 +19,6 @@ func (d *Default) SetData(bytes []byte) IParse {
 	return d
 }
 
-func (d *Default) Run(ctx context.Context) (*rss.List, error) {
+func (d *Default) Run(ctx context.Context) (*data.List, error) {
 	return nil, ModuleMissingErr
 }

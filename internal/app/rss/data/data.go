@@ -1,6 +1,8 @@
-package rss
+package data
 
-type Item struct{}
+type Item struct {
+	Title string
+}
 
 type List struct {
 	StartTime int64

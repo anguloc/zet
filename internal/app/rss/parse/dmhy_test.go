@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/anguloc/zet/internal/dto/rss"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +32,7 @@ func TestDmhy_Run(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *rss.List
+		want    *data.List
 		wantErr bool
 	}{
 		{

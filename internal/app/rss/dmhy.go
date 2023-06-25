@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/anguloc/zet/internal/app/rss/data"
 	"github.com/anguloc/zet/internal/app/rss/parse"
 	"github.com/anguloc/zet/internal/app/rss/query"
 	"github.com/anguloc/zet/internal/dto"
@@ -47,16 +48,16 @@ func (d *Dmhy) Run(ctx context.Context) error {
 	return nil
 }
 
-func (d *Dmhy) filter(list *List) (*TransmissionList, error) {
+func (d *Dmhy) filter(list *data.List) (*data.TransmissionList, error) {
 	var err error
 	if len(list.Data) == 0 {
 		return nil, MissDataErr
 	}
-	res := &TransmissionList{
+	res := &data.TransmissionList{
 		StartTime: time.Now().Unix(),
 	}
 
-	fns := []func(*Item) error{
+	fns := []func(*data.Item) error{
 		d.filterTitle,
 		d.filterAuthor,
 	}
@@ -76,14 +77,14 @@ func (d *Dmhy) filter(list *List) (*TransmissionList, error) {
 	return nil, nil
 }
 
-func (d *Dmhy) filterTitle(item *Item) error {
+func (d *Dmhy) filterTitle(item *data.Item) error {
 	return nil
 }
 
-func (d *Dmhy) filterAuthor(item *Item) error {
+func (d *Dmhy) filterAuthor(item *data.Item) error {
 	return nil
 }
 
-func (d *Dmhy) push(list *TransmissionList) error {
+func (d *Dmhy) push(list *data.TransmissionList) error {
 	return nil
 }
