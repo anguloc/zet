@@ -13,7 +13,7 @@ func NewDefault() *Default {
 
 var ModuleMissingErr = fmt.Errorf("failed to missing module")
 
-func (d *Default) Command(ctx context.Context) error {
+func (d *Default) Command(ctx context.Context, flag string) error {
 	return ModuleMissingErr
 }
 

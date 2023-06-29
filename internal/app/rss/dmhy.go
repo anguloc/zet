@@ -54,7 +54,7 @@ func (d *Dmhy) filter(list *data.List) (*data.TransmissionList, error) {
 		return nil, MissDataErr
 	}
 	res := &data.TransmissionList{
-		StartTime: time.Now().Unix(),
+		StartTime: time.Now(),
 	}
 
 	fns := []func(*data.Item) error{

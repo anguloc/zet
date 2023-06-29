@@ -35,17 +35,17 @@ func (m *MockIQuery) EXPECT() *MockIQueryMockRecorder {
 }
 
 // Command mocks base method.
-func (m *MockIQuery) Command(ctx context.Context) error {
+func (m *MockIQuery) Command(ctx context.Context, flag string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Command", ctx)
+	ret := m.ctrl.Call(m, "Command", ctx, flag)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Command indicates an expected call of Command.
-func (mr *MockIQueryMockRecorder) Command(ctx interface{}) *gomock.Call {
+func (mr *MockIQueryMockRecorder) Command(ctx, flag interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Command", reflect.TypeOf((*MockIQuery)(nil).Command), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Command", reflect.TypeOf((*MockIQuery)(nil).Command), ctx, flag)
 }
 
 // Get mocks base method.

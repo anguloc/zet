@@ -2,9 +2,10 @@ package query
 
 import (
 	"context"
+	"io"
+
 	"github.com/anguloc/zet/internal/app/rss/client"
 	"github.com/anguloc/zet/internal/dto"
-	"io"
 )
 
 var dmhyUrl = []string{
@@ -22,7 +23,8 @@ func NewDmhy() *Dmhy {
 	}
 }
 
-func (d *Dmhy) Command(ctx context.Context) error {
+func (d *Dmhy) Command(ctx context.Context, flag string) error {
+	d.url = flag
 	return nil
 }
 

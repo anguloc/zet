@@ -4,11 +4,12 @@ package query
 
 import (
 	"context"
+
 	"github.com/anguloc/zet/internal/dto"
 )
 
 type IQuery interface {
-	Command(ctx context.Context) error
+	Command(ctx context.Context, flag string) error
 	Get(ctx context.Context) (*Result, error)
 }
 

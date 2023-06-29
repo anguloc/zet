@@ -23,6 +23,11 @@ var conf = &Config{
 		MaxLifeTime:  300,
 		MaxIdleTime:  300,
 	},
+	Rss: Rss{
+		Dmhy: Dmhy{
+			TitlePattern: nil,
+		},
+	},
 }
 
 func Conf() *Config {
@@ -47,6 +52,7 @@ func Init(config string) error {
 type Config struct {
 	Global Global `mapstructure:"global" json:"global" yaml:"global"`
 	DBZet  Mysql  `mapstructure:"db_zet" json:"db_zet" yaml:"db_zet"`
+	Rss    Rss    `mapstructure:"rss" json:"rss" yaml:"rss"`
 }
 
 type Global struct {
@@ -78,4 +84,12 @@ func (m Mysql) GormConfig() *gorm.Config {
 		},
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}
+}
+
+type Rss struct {
+	Dmhy `mapstructure:"dmhy" json:"dmhy" yaml:"dmhy"`
+}
+
+type Dmhy struct {
+	TitlePattern []string `mapstructure:"title_pattern" json:"title_pattern" yaml:"title_pattern"`
 }

@@ -30,23 +30,33 @@ func (d *Dmhy) Run(ctx context.Context) (*data.List, error) {
 		return nil, err
 	}
 	res := &data.List{
-		StartTime: time.Now().Unix(),
+		StartTime: time.Now(),
 	}
 	res.Data = make([]*data.Item, 0, len(raw.Channel.Item))
 
 	for _, v := range raw.Channel.Item {
-		println(v.Title)
 		res.Data = append(res.Data, &data.Item{
 			Title:       v.Title,
 			Link:        v.Link,
 			Author:      v.Author,
-			PubDate:     v.PubDate,
+			PubDate:     d.parsePubDate(v.PubDate),
 			Description: v.Description,
 			Bittorrent:  v.Enclosure.URL,
 			Guid:        v.Guid.Text,
 		})
 	}
 	return nil, fmt.Errorf("a")
+}
+
+func (d *Dmhy) parsePubDate(date string) time.Time {
+	t, err := time.ParseInLocation(time.RFC1123Z, date, time.Local)
+	if err != nil {
+		return time.Time{}
+	}
+	if t.Location() != time.Local {
+		t = t.Local()
+	}
+	return t
 }
 
 type dmhyData struct {

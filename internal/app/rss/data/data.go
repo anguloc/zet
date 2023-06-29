@@ -1,23 +1,25 @@
 package data
 
+import "time"
+
 type Item struct {
 	Title       string
 	Link        string
 	Author      string
-	PubDate     string
+	PubDate     time.Time
 	Description string
 	Bittorrent  string
 	Guid        string
 }
 
 type List struct {
-	StartTime int64
+	StartTime time.Time
 	Data      []*Item
 }
 
 type TransmissionItem struct{}
 
 type TransmissionList struct {
-	StartTime int64
+	StartTime time.Time
 	Data      []*TransmissionItem
 }
