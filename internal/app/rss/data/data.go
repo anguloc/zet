@@ -7,12 +7,7 @@ type Item struct {
 	PubDate     string
 	Description string
 	Bittorrent  string
-	Guid        Guid
-}
-
-type Guid struct {
-	Text        string
-	IsPermaLink bool
+	Guid        string
 }
 
 type List struct {

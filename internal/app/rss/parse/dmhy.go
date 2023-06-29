@@ -37,7 +37,13 @@ func (d *Dmhy) Run(ctx context.Context) (*data.List, error) {
 	for _, v := range raw.Channel.Item {
 		println(v.Title)
 		res.Data = append(res.Data, &data.Item{
-			Title: v.Title,
+			Title:       v.Title,
+			Link:        v.Link,
+			Author:      v.Author,
+			PubDate:     v.PubDate,
+			Description: v.Description,
+			Bittorrent:  v.Enclosure.URL,
+			Guid:        v.Guid.Text,
 		})
 	}
 	return nil, fmt.Errorf("a")
