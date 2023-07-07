@@ -10,11 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "hd",
-	Short: "handle",
-	Long:  "handlinginteractions",
-	Run:   Run,
+func Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "hd",
+		Short: "handle",
+		Long:  "handlinginteractions",
+		Run:   Run,
+	}
+	return cmd
 }
 
 func Run(cmd *cobra.Command, args []string) {
