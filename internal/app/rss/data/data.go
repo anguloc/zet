@@ -10,6 +10,7 @@ type Item struct {
 	Description string
 	Bittorrent  string
 	Guid        string
+	UK          string
 }
 
 type List struct {

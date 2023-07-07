@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/anguloc/zet/cmd/handle"
 	"github.com/anguloc/zet/cmd/rss"
+	"github.com/anguloc/zet/internal/pkg/console"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var root = cobra.Command{
@@ -15,8 +17,14 @@ var root = cobra.Command{
 
 func main() {
 
+	console.SetLevel(console.DebugLevel, console.InfoLevel, console.WarnLevel, console.ErrorLevel)
+
 	root.AddCommand(handle.Cmd)
 	root.AddCommand(rss.Cmd)
+	root.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
+		console.Debugf("参数错误:%s\n", err)
+		return command.Usage()
+	})
 
 	if err := root.Execute(); err != nil {
 		fmt.Println(err)

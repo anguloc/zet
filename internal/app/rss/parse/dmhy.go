@@ -3,7 +3,7 @@ package parse
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/anguloc/zet/internal/app/rss/data"
@@ -43,9 +43,10 @@ func (d *Dmhy) Run(ctx context.Context) (*data.List, error) {
 			Description: v.Description,
 			Bittorrent:  v.Enclosure.URL,
 			Guid:        v.Guid.Text,
+			UK:          d.parseUk(v.Guid.Text),
 		})
 	}
-	return nil, fmt.Errorf("a")
+	return res, nil
 }
 
 func (d *Dmhy) parsePubDate(date string) time.Time {
@@ -57,6 +58,23 @@ func (d *Dmhy) parsePubDate(date string) time.Time {
 		t = t.Local()
 	}
 	return t
+}
+
+func (d *Dmhy) parseUk(str string) string {
+	// 找字符串中的第一个数字
+	res := ""
+	for _, v := range str {
+		s := string(v)
+		_, ok := strconv.Atoi(s)
+		if ok == nil {
+			res += s
+			continue
+		}
+		if res != "" {
+			break
+		}
+	}
+	return res
 }
 
 type dmhyData struct {

@@ -103,3 +103,49 @@ func TestDmhy_parsePubDate(t *testing.T) {
 		})
 	}
 }
+
+// go test ./internal/app/rss/parse -v -run TestDmhy_parseUk$ --count=1
+func TestDmhy_parseUk(t *testing.T) {
+	tests := []struct {
+		name string
+		args string
+		want string
+	}{
+		{
+			name: "全数字",
+			args: "123345",
+			want: "123345",
+		},
+		{
+			name: "数字开头",
+			args: "123345ad",
+			want: "123345",
+		},
+		{
+			name: "数字结尾",
+			args: "fsd123345",
+			want: "123345",
+		},
+		{
+			name: "数字在中间",
+			args: "dsag123345gdrfgd",
+			want: "123345",
+		},
+		{
+			name: "多段数字",
+			args: "ad123345ads25dsf623sdf4623fs",
+			want: "123345",
+		},
+		{
+			name: "符号分隔数字",
+			args: "&%$^&123345_324523",
+			want: "123345",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Dmhy{}
+			assert.Equalf(t, tt.want, d.parseUk(tt.args), "parseUk(%v)", tt.args)
+		})
+	}
+}
