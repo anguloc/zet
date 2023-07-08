@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/anguloc/zet/internal/pkg/console"
 	"os"
 
 	"github.com/anguloc/zet/internal/app/worker"
@@ -23,20 +24,11 @@ func main() {
 
 	config = safe.Path(config)
 	if err = conf.Init(config); err != nil {
-		fmt.Println(err)
+		console.Error(err)
 		return
 	}
 
-	return
-
 	app := application.New()
-
-	println(1)
-
-	println(os.Getwd())
-	println(os.Executable())
-
-	return
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})
