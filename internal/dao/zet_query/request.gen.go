@@ -29,11 +29,11 @@ func newRequest(db *gorm.DB, opts ...gen.DOOption) request {
 	_request.ALL = field.NewAsterisk(tableName)
 	_request.ID = field.NewInt64(tableName, "id")
 	_request.URL = field.NewString(tableName, "url")
+	_request.Mark = field.NewString(tableName, "mark")
 	_request.RequestNum = field.NewInt32(tableName, "request_num")
 	_request.Content = field.NewString(tableName, "content")
-	_request.AddTime = field.NewInt32(tableName, "add_time")
-	_request.UpdateTime = field.NewInt32(tableName, "update_time")
-	_request.DeletedTime = field.NewInt32(tableName, "deleted_time")
+	_request.CreatedAt = field.NewTime(tableName, "created_at")
+	_request.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_request.fillFieldMap()
 
@@ -43,14 +43,14 @@ func newRequest(db *gorm.DB, opts ...gen.DOOption) request {
 type request struct {
 	requestDo requestDo
 
-	ALL         field.Asterisk
-	ID          field.Int64  // id
-	URL         field.String // 资源地址
-	RequestNum  field.Int32  // 请求次数
-	Content     field.String // 请求原始结果
-	AddTime     field.Int32
-	UpdateTime  field.Int32
-	DeletedTime field.Int32
+	ALL        field.Asterisk
+	ID         field.Int64  // id
+	URL        field.String // 资源地址
+	Mark       field.String // 标识
+	RequestNum field.Int32  // 请求次数
+	Content    field.String // 请求原始结果
+	CreatedAt  field.Time   // 插入时间
+	UpdatedAt  field.Time   // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -69,11 +69,11 @@ func (r *request) updateTableName(table string) *request {
 	r.ALL = field.NewAsterisk(table)
 	r.ID = field.NewInt64(table, "id")
 	r.URL = field.NewString(table, "url")
+	r.Mark = field.NewString(table, "mark")
 	r.RequestNum = field.NewInt32(table, "request_num")
 	r.Content = field.NewString(table, "content")
-	r.AddTime = field.NewInt32(table, "add_time")
-	r.UpdateTime = field.NewInt32(table, "update_time")
-	r.DeletedTime = field.NewInt32(table, "deleted_time")
+	r.CreatedAt = field.NewTime(table, "created_at")
+	r.UpdatedAt = field.NewTime(table, "updated_at")
 
 	r.fillFieldMap()
 
@@ -99,11 +99,11 @@ func (r *request) fillFieldMap() {
 	r.fieldMap = make(map[string]field.Expr, 7)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["url"] = r.URL
+	r.fieldMap["mark"] = r.Mark
 	r.fieldMap["request_num"] = r.RequestNum
 	r.fieldMap["content"] = r.Content
-	r.fieldMap["add_time"] = r.AddTime
-	r.fieldMap["update_time"] = r.UpdateTime
-	r.fieldMap["deleted_time"] = r.DeletedTime
+	r.fieldMap["created_at"] = r.CreatedAt
+	r.fieldMap["updated_at"] = r.UpdatedAt
 }
 
 func (r request) clone(db *gorm.DB) request {

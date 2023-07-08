@@ -28,7 +28,7 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	tableName := _task.taskDo.TableName()
 	_task.ALL = field.NewAsterisk(tableName)
 	_task.ID = field.NewUint64(tableName, "id")
-	_task.Type = field.NewString(tableName, "type")
+	_task.Mark = field.NewString(tableName, "mark")
 	_task.Status = field.NewUint32(tableName, "status")
 	_task.Data = field.NewString(tableName, "data")
 	_task.Result = field.NewString(tableName, "result")
@@ -47,14 +47,14 @@ type task struct {
 
 	ALL           field.Asterisk
 	ID            field.Uint64
-	Type          field.String // 任务标识
+	Mark          field.String // 任务标识
 	Status        field.Uint32 // 任务状态 0待执行,1执行中,20执行完成,99执行失败
 	Data          field.String // 任务数据
 	Result        field.String // 执行结果
 	RunTimes      field.Uint32 // 执行次数
 	MaxRetryTimes field.Uint32 // 最大重试次数
-	CreatedAt     field.Time
-	UpdatedAt     field.Time
+	CreatedAt     field.Time   // 插入时间
+	UpdatedAt     field.Time   // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -72,7 +72,7 @@ func (t task) As(alias string) *task {
 func (t *task) updateTableName(table string) *task {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewUint64(table, "id")
-	t.Type = field.NewString(table, "type")
+	t.Mark = field.NewString(table, "mark")
 	t.Status = field.NewUint32(table, "status")
 	t.Data = field.NewString(table, "data")
 	t.Result = field.NewString(table, "result")
@@ -104,7 +104,7 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (t *task) fillFieldMap() {
 	t.fieldMap = make(map[string]field.Expr, 9)
 	t.fieldMap["id"] = t.ID
-	t.fieldMap["type"] = t.Type
+	t.fieldMap["mark"] = t.Mark
 	t.fieldMap["status"] = t.Status
 	t.fieldMap["data"] = t.Data
 	t.fieldMap["result"] = t.Result

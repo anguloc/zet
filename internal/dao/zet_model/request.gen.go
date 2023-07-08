@@ -4,17 +4,21 @@
 
 package zet_model
 
+import (
+	"time"
+)
+
 const TableNameRequest = "request"
 
 // Request mapped from table <request>
 type Request struct {
-	ID          int64   `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:id" json:"id"`
-	URL         string  `gorm:"column:url;type:varchar(1024);not null;comment:资源地址" json:"url"`
-	RequestNum  int32   `gorm:"column:request_num;type:int;not null;comment:请求次数" json:"request_num"`
-	Content     *string `gorm:"column:content;type:text;comment:请求原始结果" json:"content"`
-	AddTime     int32   `gorm:"column:add_time;type:int;not null" json:"add_time"`
-	UpdateTime  int32   `gorm:"column:update_time;type:int;not null" json:"update_time"`
-	DeletedTime int32   `gorm:"column:deleted_time;type:int;not null" json:"deleted_time"`
+	ID         int64      `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:id" json:"id"`
+	URL        string     `gorm:"column:url;type:varchar(1024);not null;comment:资源地址" json:"url"`
+	Mark       string     `gorm:"column:mark;type:varchar(64);not null;index:idx_mark,priority:1;comment:标识" json:"mark"`
+	RequestNum int32      `gorm:"column:request_num;type:int;not null;comment:请求次数" json:"request_num"`
+	Content    *string    `gorm:"column:content;type:text;comment:请求原始结果" json:"content"`
+	CreatedAt  *time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:插入时间" json:"created_at"`
+	UpdatedAt  *time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`
 }
 
 // TableName Request's table name
