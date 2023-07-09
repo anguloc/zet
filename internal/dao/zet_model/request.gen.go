@@ -16,7 +16,7 @@ type Request struct {
 	URL        string     `gorm:"column:url;type:varchar(1024);not null;comment:资源地址" json:"url"`
 	Mark       string     `gorm:"column:mark;type:varchar(64);not null;index:idx_mark,priority:1;comment:标识" json:"mark"`
 	RequestNum int32      `gorm:"column:request_num;type:int;not null;comment:请求次数" json:"request_num"`
-	Content    *string    `gorm:"column:content;type:text;comment:请求原始结果" json:"content"`
+	Content    *string    `gorm:"column:content;type:longtext;comment:请求原始结果" json:"content"`
 	CreatedAt  *time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:插入时间" json:"created_at"`
 	UpdatedAt  *time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`
 }

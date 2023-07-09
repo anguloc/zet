@@ -4,8 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/anguloc/zet/internal/pkg/console"
 	"os"
+
+	"github.com/anguloc/zet/internal/pkg/console"
 
 	"github.com/anguloc/zet/internal/app/worker"
 	"github.com/anguloc/zet/internal/pkg/application"
@@ -32,7 +33,7 @@ func main() {
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})
-	app.RegisterWorker("bar", &worker.AnimationRss{})
+	app.RegisterWorker("bar", &worker.DmhyRss{})
 
 	if err = app.Init(ctx, ""); err != nil {
 		fmt.Println(err)

@@ -10,7 +10,7 @@ import (
 
 func TestA(t *testing.T) {
 	ctx := context.Background()
-	w := &AnimationRss{}
+	w := &DmhyRss{}
 
 	url := "https://www.dmhy.org/topics/rss/rss.xml"
 

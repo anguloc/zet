@@ -14,39 +14,33 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-type AnimationRss struct {
-	isRunning bool
-	cron      *cron.Cron
+type DmhyRss struct {
+	cron *cron.Cron
 }
 
-func (w *AnimationRss) Init(ctx context.Context) error {
-	fmt.Println("init animation rss")
+func (w *DmhyRss) Init(ctx context.Context) error {
+	w.cron = cron.New(cron.WithLogger(cron.DiscardLogger))
 	return nil
 }
 
-func (w *AnimationRss) Run(ctx context.Context) error {
-	log.Info(ctx, "AnimationRss_Start")
+func (w *DmhyRss) Run(ctx context.Context) error {
 	ch := make(chan struct{})
-	w.isRunning = true
-	go func() {
-		for w.isRunning {
-
-		}
-		close(ch)
-	}()
-
+	_, err := w.cron.AddFunc("* * * * *", func() {
+		w.handle(ctx)
+	})
+	if err != nil {
+		return err
+	}
+	w.cron.Start()
 	select {
 	case <-ctx.Done():
-		w.isRunning = false
+		w.cron.Stop()
 	}
 	<-ch
-
-	log.Info(ctx, "AnimationRss_End")
-
 	return nil
 }
 
-func (w *AnimationRss) handle(ctx context.Context) {
+func (w *DmhyRss) handle(ctx context.Context) {
 	repo := kv.New()
 	// 查询rss svr
 	if err := w.queryResource(ctx, repo, w.getRssUrlList()); err != nil {
@@ -67,13 +61,13 @@ func (w *AnimationRss) handle(ctx context.Context) {
 	// 异步获取
 }
 
-func (w *AnimationRss) getRssUrlList() map[string]string {
+func (w *DmhyRss) getRssUrlList() map[string]string {
 	return map[string]string{
 		"dmhy": "https://www.dmhy.org/topics/rss/rss.xml",
 	}
 }
 
-func (w *AnimationRss) queryRss(ctx context.Context, url string) ([]byte, int, error) {
+func (w *DmhyRss) queryRss(ctx context.Context, url string) ([]byte, int, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -101,7 +95,7 @@ func (w *AnimationRss) queryRss(ctx context.Context, url string) ([]byte, int, e
 	return body, rsp.StatusCode, err
 }
 
-func (w *AnimationRss) queryResource(ctx context.Context, repo kv.IKV, rss map[string]string) error {
+func (w *DmhyRss) queryResource(ctx context.Context, repo kv.IKV, rss map[string]string) error {
 	oneSuccess := false
 	for name, url := range rss {
 		body, code, err := w.queryRss(ctx, url)
@@ -128,7 +122,7 @@ func (w *AnimationRss) queryResource(ctx context.Context, repo kv.IKV, rss map[s
 	return nil
 }
 
-func (w *AnimationRss) parseResource(ctx context.Context, repo kv.IKV, rss map[string]string) (map[string]*rssData, error) {
+func (w *DmhyRss) parseResource(ctx context.Context, repo kv.IKV, rss map[string]string) (map[string]*rssData, error) {
 	res := make(map[string]*rssData, len(rss))
 	for name := range rss {
 		value, err := repo.Get(name)
