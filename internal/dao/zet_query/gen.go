@@ -19,6 +19,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:      db,
 		Request: newRequest(db, opts...),
+		Rss:     newRss(db, opts...),
 		Task:    newTask(db, opts...),
 	}
 }
@@ -27,6 +28,7 @@ type Query struct {
 	db *gorm.DB
 
 	Request request
+	Rss     rss
 	Task    task
 }
 
@@ -36,6 +38,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:      db,
 		Request: q.Request.clone(db),
+		Rss:     q.Rss.clone(db),
 		Task:    q.Task.clone(db),
 	}
 }
@@ -52,18 +55,21 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:      db,
 		Request: q.Request.replaceDB(db),
+		Rss:     q.Rss.replaceDB(db),
 		Task:    q.Task.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
 	Request IRequestDo
+	Rss     IRssDo
 	Task    ITaskDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Request: q.Request.WithContext(ctx),
+		Rss:     q.Rss.WithContext(ctx),
 		Task:    q.Task.WithContext(ctx),
 	}
 }
