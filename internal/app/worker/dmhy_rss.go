@@ -28,7 +28,7 @@ func (w *DmhyRss) Init(ctx context.Context) error {
 }
 
 func (w *DmhyRss) Run(ctx context.Context) error {
-	_, err := w.cron.AddFunc("* * * * *", func() {
+	_, err := w.cron.AddFunc("3 * * * *", func() {
 		w.handle(ctx)
 	})
 	if err != nil {
@@ -43,9 +43,6 @@ func (w *DmhyRss) Run(ctx context.Context) error {
 }
 
 func (w *DmhyRss) handle(ctx context.Context) {
-	println(123)
-
-	return
 	url := "https://www.dmhy.org/topics/rss/rss.xml"
 
 	rsp, err := w.client.Get(ctx, url)
