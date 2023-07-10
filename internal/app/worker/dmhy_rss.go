@@ -68,7 +68,8 @@ func (w *DmhyRss) handle(ctx context.Context) {
 		Content:    &str,
 	})
 	if err != nil {
-		log.Error(ctx, "dngtRssInsertDbErr", log.NamedError("err", err))
+		log.Error(ctx, "dmhyRssInsertDbErr", log.NamedError("err", err))
 		return
 	}
+	log.Info(ctx, "dmhyRssRequestSuccess")
 }
