@@ -1,27 +1,26 @@
-package main
+package server
 
 import (
-	"context"
-	"flag"
 	"fmt"
 	"os"
-
-	"github.com/anguloc/zet/internal/pkg/console"
 
 	"github.com/anguloc/zet/internal/app/worker"
 	"github.com/anguloc/zet/internal/pkg/application"
 	"github.com/anguloc/zet/internal/pkg/conf"
+	"github.com/anguloc/zet/internal/pkg/console"
 	"github.com/anguloc/zet/internal/pkg/safe"
+	"github.com/spf13/cobra"
 )
 
-var config string
-
-func main() {
+func Run(cmd *cobra.Command, _ []string) {
 	var err error
-	ctx := context.TODO()
+	ctx := cmd.Context()
 
-	flag.StringVar(&config, "config", "conf/conf.yml", "config path")
-	flag.Parse()
+	config, err := cmd.Flags().GetString("")
+	if err != nil {
+		console.Error("配置文件异常", err)
+		return
+	}
 
 	config = safe.Path(config)
 	if err = conf.Init(config); err != nil {
@@ -33,7 +32,7 @@ func main() {
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})
-	app.RegisterWorker("bar", &worker.DmhyRss{})
+	app.RegisterWorker("dmhy_rss", &worker.DmhyRss{})
 
 	if err = app.Init(ctx, ""); err != nil {
 		fmt.Println(err)

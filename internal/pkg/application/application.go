@@ -7,7 +7,9 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
+	"github.com/anguloc/zet/internal/pkg/console"
 	"github.com/anguloc/zet/internal/pkg/safe"
 	"golang.org/x/sync/errgroup"
 )
@@ -79,6 +81,7 @@ func (app *Application) Run(ctx context.Context) (err error) {
 			return
 		}
 
+		console.Info("start success", time.Now().Format(time.RFC1123Z))
 		if err = app.wait(cCtx); err != nil {
 			return
 		}
@@ -116,6 +119,7 @@ func (app *Application) wait(ctx context.Context) error {
 
 	go func() {
 		s := <-sig
+		console.Info("recv quit sig")
 		go func() {
 			_ = app.stopWorker(ctx, s != syscall.SIGQUIT)
 		}()
@@ -124,7 +128,7 @@ func (app *Application) wait(ctx context.Context) error {
 	}()
 
 	app.wg.Wait()
-	fmt.Println("success quit")
+	console.Info("success quit")
 	return nil
 }
 
