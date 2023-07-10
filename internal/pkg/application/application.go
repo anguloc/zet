@@ -9,7 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/anguloc/zet/internal/pkg/conf"
 	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/internal/pkg/db"
 	"github.com/anguloc/zet/internal/pkg/safe"
 	"golang.org/x/sync/errgroup"
 )
@@ -48,6 +50,10 @@ func (app *Application) Init(ctx context.Context, conf string) (err error) {
 			return
 		}
 
+		if err = db.Init(ctx); err != nil {
+			return
+		}
+
 		if err = app.initWorker(ctx); err != nil {
 			return
 		}
@@ -55,7 +61,11 @@ func (app *Application) Init(ctx context.Context, conf string) (err error) {
 	return
 }
 
-func (app *Application) initConf(_ context.Context, conf string) error {
+func (app *Application) initConf(_ context.Context, config string) error {
+	config = safe.Path(config)
+	if err := conf.Init(config); err != nil {
+		return err
+	}
 	return nil
 }
 

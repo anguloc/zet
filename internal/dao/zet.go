@@ -6,6 +6,6 @@ import (
 )
 
 func Zet() *zet_query.Query {
-	db := db.Zet()
-	return zet_query.Use(db)
+	conn := db.Zet()
+	return zet_query.Use(conn)
 }
