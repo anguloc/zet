@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/anguloc/zet/internal/app/worker"
+	_ "github.com/anguloc/zet/internal/app/worker"
 	"github.com/anguloc/zet/pkg/application"
 	"github.com/anguloc/zet/pkg/console"
+	"github.com/anguloc/zet/pkg/cron"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +25,7 @@ func Run(cmd *cobra.Command, _ []string) {
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})
-	app.RegisterWorker("dmhy_rss", &worker.DmhyRss{})
+	app.RegisterWorker("cron", cron.NewWorker())
 
 	if err = app.Init(ctx, config); err != nil {
 		fmt.Println(err)

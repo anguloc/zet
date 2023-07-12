@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -15,42 +16,38 @@ import (
 )
 
 type DmhyRss struct {
-	cron         cron.ICron
 	client       client.IClient
 	requestTable zet_query.IRequestDo
 }
 
-func (w *DmhyRss) Init(ctx context.Context) error {
-	w.cron = cron.NewCron()
-	w.client = client.New(client.WithModule(dto.DmhyModule))
-	w.requestTable = dao.Zet().Request.WithContext(ctx)
-	return w.cron.RegisterFunc(ctx, "3 * * * *", func(ctx context.Context) error {
-		w.handle(ctx)
-		return nil
-	})
+func init() {
+	_ = cron.NewCron().RegisterJob("3 * * * *", NewDmhyRss())
+}
+
+func NewDmhyRss() *DmhyRss {
+	return &DmhyRss{
+		client:       client.New(client.WithModule(dto.DmhyModule)),
+		requestTable: dao.Zet().Request.WithContext(nil),
+	}
 }
 
 func (w *DmhyRss) Run(ctx context.Context) error {
-	return w.cron.Start(ctx)
-}
-
-func (w *DmhyRss) handle(ctx context.Context) {
 	url := "https://www.dmhy.org/topics/rss/rss.xml"
 
 	rsp, err := w.client.Get(ctx, url)
 	if err != nil {
 		log.Error(ctx, "dmhyRssReqErr", log.NamedError("err", err))
-		return
+		return err
 	}
 	defer func() { _ = rsp.HttpResponse.Body.Close() }()
 	if rsp.HttpResponse.StatusCode != http.StatusOK {
 		log.Error(ctx, "dmhyRssReqCodeErr", log.Int("http_code", rsp.HttpResponse.StatusCode))
-		return
+		return fmt.Errorf("rss http err")
 	}
 	body, err := io.ReadAll(rsp.HttpResponse.Body)
 	if err != nil {
 		log.Error(ctx, "dmhyRssReadBodyErr", log.NamedError("err", err))
-		return
+		return err
 	}
 	str := string(body)
 	err = w.requestTable.WithContext(ctx).Create(&zet_model.Request{
@@ -61,7 +58,8 @@ func (w *DmhyRss) handle(ctx context.Context) {
 	})
 	if err != nil {
 		log.Error(ctx, "dmhyRssInsertDbErr", log.NamedError("err", err))
-		return
+		return err
 	}
 	log.Info(ctx, "dmhyRssRequestSuccess")
+	return nil
 }
