@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/anguloc/zet/internal/pkg/conf"
-	"github.com/anguloc/zet/internal/pkg/console"
-	"github.com/anguloc/zet/internal/pkg/db"
-	"github.com/anguloc/zet/internal/pkg/safe"
+	"github.com/anguloc/zet/pkg/conf"
+	"github.com/anguloc/zet/pkg/console"
+	"github.com/anguloc/zet/pkg/db"
+	"github.com/anguloc/zet/pkg/safe"
 	"golang.org/x/sync/errgroup"
 )
 

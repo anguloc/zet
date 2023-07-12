@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anguloc/zet/internal/pkg/log"
+	"github.com/anguloc/zet/pkg/log"
 	"github.com/robfig/cron/v3"
 )
 

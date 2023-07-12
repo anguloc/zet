@@ -10,8 +10,8 @@ import (
 	"github.com/anguloc/zet/internal/dao/zet_model"
 	"github.com/anguloc/zet/internal/dao/zet_query"
 	"github.com/anguloc/zet/internal/dto"
-	"github.com/anguloc/zet/internal/pkg/cron"
-	"github.com/anguloc/zet/internal/pkg/log"
+	"github.com/anguloc/zet/pkg/cron"
+	"github.com/anguloc/zet/pkg/log"
 )
 
 type DmhyRss struct {

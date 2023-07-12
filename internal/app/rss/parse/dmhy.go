@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/anguloc/zet/internal/app/rss/data"
-	"github.com/anguloc/zet/internal/pkg/log"
+	"github.com/anguloc/zet/pkg/log"
 )
 
 type Dmhy struct {

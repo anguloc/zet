@@ -8,7 +8,7 @@ import (
 	"github.com/anguloc/zet/cmd/handle"
 	"github.com/anguloc/zet/cmd/rss"
 	"github.com/anguloc/zet/cmd/server"
-	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/pkg/console"
 	"github.com/spf13/cobra"
 )
 

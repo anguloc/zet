@@ -3,7 +3,7 @@ package kv
 import (
 	"errors"
 
-	"github.com/anguloc/zet/internal/pkg/conf"
+	"github.com/anguloc/zet/pkg/conf"
 )
 
 type IKV interface {

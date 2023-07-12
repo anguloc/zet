@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/pkg/console"
 	"github.com/spf13/cobra"
 )
 
@@ -149,4 +149,3 @@ func printResult(c <-chan threadItem, count int) {
 		console.Infof("协程序号:[%d],耗时:[%s],执行任务数:[%d],平均耗时:[%s]\n", i, v.costTime, v.taskNum, v.avaTime)
 	}
 }
-

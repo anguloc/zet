@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/pkg/console"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 	"github.com/spf13/cobra"

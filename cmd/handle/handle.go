@@ -7,7 +7,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/pkg/console"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
 	"github.com/mattn/go-tty"

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/anguloc/zet/internal/pkg/conf"
+	"github.com/anguloc/zet/pkg/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"

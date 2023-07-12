@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/anguloc/zet/internal/app/worker"
-	"github.com/anguloc/zet/internal/pkg/application"
-	"github.com/anguloc/zet/internal/pkg/console"
+	"github.com/anguloc/zet/pkg/application"
+	"github.com/anguloc/zet/pkg/console"
 	"github.com/spf13/cobra"
 )
 

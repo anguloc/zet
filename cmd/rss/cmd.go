@@ -9,8 +9,8 @@ import (
 	"github.com/anguloc/zet/internal/app/rss/parse"
 	"github.com/anguloc/zet/internal/app/rss/query"
 	"github.com/anguloc/zet/internal/dto"
-	"github.com/anguloc/zet/internal/pkg/console"
-	"github.com/anguloc/zet/internal/pkg/safe"
+	"github.com/anguloc/zet/pkg/console"
+	"github.com/anguloc/zet/pkg/safe"
 	"github.com/golang/mock/gomock"
 	"github.com/spf13/cobra"
 )

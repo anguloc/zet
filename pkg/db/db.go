@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anguloc/zet/internal/pkg/conf"
+	"github.com/anguloc/zet/pkg/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

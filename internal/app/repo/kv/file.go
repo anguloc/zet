@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/anguloc/zet/internal/pkg/conf"
-	"github.com/anguloc/zet/internal/pkg/safe"
+	"github.com/anguloc/zet/pkg/conf"
+	"github.com/anguloc/zet/pkg/safe"
 )
 
 const (
