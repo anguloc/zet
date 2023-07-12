@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/anguloc/zet/internal/app/worker"
+	"github.com/anguloc/zet/internal/app/worker"
 	"github.com/anguloc/zet/pkg/application"
 	"github.com/anguloc/zet/pkg/console"
 	"github.com/anguloc/zet/pkg/cron"
@@ -22,6 +22,8 @@ func Run(cmd *cobra.Command, _ []string) {
 	}
 
 	app := application.New()
+
+	worker.Init()
 
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})

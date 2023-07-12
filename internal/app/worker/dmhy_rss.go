@@ -20,7 +20,7 @@ type DmhyRss struct {
 	requestTable zet_query.IRequestDo
 }
 
-func init() {
+func Init() {
 	_ = cron.NewCron().RegisterJob("3 * * * *", NewDmhyRss())
 }
 

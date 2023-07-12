@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -10,7 +11,6 @@ import (
 	"github.com/anguloc/zet/pkg/console"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
-	"github.com/mattn/go-tty"
 	"github.com/spf13/cobra"
 )
 
@@ -26,29 +26,29 @@ func Cmd() *cobra.Command {
 
 var isRun = false
 
+var cancel context.CancelFunc
+
 func Run(cmd *cobra.Command, args []string) {
+	ctx := cmd.Context()
+	ctx, cancel = context.WithCancel(ctx)
 	isRun = true
 	sigFn()
 
 	fmt.Println("start")
-
-	t, err := tty.Open()
+	err := openTTY()
 	if err != nil {
-		fmt.Println(err)
+		console.Error("tty打开错误")
 		return
 	}
-	defer func() {
-		_ = t.Close()
-		fmt.Println("close end")
-	}()
+	defer closeTTY()
 	for {
 		//if !isRun {
 		//	fmt.Println("rec")
 		//	break
 		//}
 		fmt.Println("r")
-		//r, rerr := t.ReadRune()
-		r, rerr := t.ReadString()
+		r, rerr := t.ReadRune()
+		//r, rerr := t.ReadString()
 		fmt.Println("ro")
 		if rerr != nil {
 			fmt.Println(rerr)
@@ -88,6 +88,7 @@ func sigFn() {
 		s := <-sig
 		console.Info("recv quit sig")
 		go func() {
+			cancel()
 			isRun = false
 		}()
 		<-sig
