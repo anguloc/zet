@@ -3,10 +3,14 @@ package handle
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
+	"github.com/anguloc/zet/internal/pkg/console"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
+	"github.com/mattn/go-tty"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +24,42 @@ func Cmd() *cobra.Command {
 	return cmd
 }
 
+var isRun = false
+
 func Run(cmd *cobra.Command, args []string) {
+	isRun = true
+	sigFn()
+
+	fmt.Println("start")
+
+	t, err := tty.Open()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func() {
+		_ = t.Close()
+		fmt.Println("close end")
+	}()
+	for {
+		//if !isRun {
+		//	fmt.Println("rec")
+		//	break
+		//}
+		fmt.Println("r")
+		//r, rerr := t.ReadRune()
+		r, rerr := t.ReadString()
+		fmt.Println("ro")
+		if rerr != nil {
+			fmt.Println(rerr)
+			return
+		}
+		fmt.Println(r)
+	}
+
+	fmt.Println("end")
+
+	return
 	c, err := newCompleter()
 	if err != nil {
 		fmt.Println(err)
@@ -40,6 +79,22 @@ func Run(cmd *cobra.Command, args []string) {
 	)
 	p.Run()
 }
+
+func sigFn() {
+	sig := make(chan os.Signal, 2)
+	signal.Notify(sig, []os.Signal{syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM}...)
+
+	go func() {
+		s := <-sig
+		console.Info("recv quit sig")
+		go func() {
+			isRun = false
+		}()
+		<-sig
+		os.Exit(128 + int(s.(syscall.Signal)))
+	}()
+}
+
 func completer1(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "users", Description: "Store the username and age"},

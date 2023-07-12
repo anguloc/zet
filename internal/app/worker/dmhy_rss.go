@@ -10,36 +10,28 @@ import (
 	"github.com/anguloc/zet/internal/dao/zet_model"
 	"github.com/anguloc/zet/internal/dao/zet_query"
 	"github.com/anguloc/zet/internal/dto"
+	"github.com/anguloc/zet/internal/pkg/cron"
 	"github.com/anguloc/zet/internal/pkg/log"
-	"github.com/robfig/cron/v3"
 )
 
 type DmhyRss struct {
-	cron         *cron.Cron
+	cron         cron.ICron
 	client       client.IClient
 	requestTable zet_query.IRequestDo
 }
 
 func (w *DmhyRss) Init(ctx context.Context) error {
-	w.cron = cron.New(cron.WithLogger(cron.DiscardLogger))
+	w.cron = cron.NewCron()
 	w.client = client.New(client.WithModule(dto.DmhyModule))
 	w.requestTable = dao.Zet().Request.WithContext(ctx)
-	return nil
+	return w.cron.RegisterFunc(ctx, "3 * * * *", func(ctx context.Context) error {
+		w.handle(ctx)
+		return nil
+	})
 }
 
 func (w *DmhyRss) Run(ctx context.Context) error {
-	_, err := w.cron.AddFunc("3 * * * *", func() {
-		w.handle(ctx)
-	})
-	if err != nil {
-		return err
-	}
-	w.cron.Start()
-	select {
-	case <-ctx.Done():
-		w.cron.Stop()
-	}
-	return nil
+	return w.cron.Start(ctx)
 }
 
 func (w *DmhyRss) handle(ctx context.Context) {
