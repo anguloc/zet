@@ -6,33 +6,42 @@ import (
 	"github.com/mattn/go-tty"
 )
 
-var (
-	ttyMu = &sync.Mutex{}
-	exist = false
-	t     *tty.TTY
-)
+type iTTY struct {
+	mu  *sync.Mutex
+	tty *tty.TTY
+}
 
-func openTTY() error {
-	ttyMu.Lock()
-	defer ttyMu.Unlock()
-	if exist {
-		return nil
+var it = newITTY()
+
+func newITTY() *iTTY {
+	return &iTTY{
+		mu: &sync.Mutex{},
+	}
+}
+
+func (i *iTTY) open() (*tty.TTY, error) {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	if i.tty != nil {
+		return i.tty, nil
 	}
 	tmp, err := tty.Open()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	t = tmp
-	exist = true
-	return nil
+	i.tty = tmp
+	return i.tty, nil
 }
-func closeTTY() {
-	ttyMu.Lock()
-	defer ttyMu.Unlock()
-	if !exist {
+
+func (i *iTTY) close() {
+	if i.tty == nil {
 		return
 	}
-	_ = t.Close()
-	t = nil
-	exist = false
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	if i.tty == nil {
+		return
+	}
+	_ = i.tty.Close()
+	i.tty = nil
 }

@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
+	"unicode"
 
 	"github.com/anguloc/zet/pkg/console"
 	"github.com/c-bata/go-prompt"
@@ -32,33 +34,33 @@ func Run(cmd *cobra.Command, args []string) {
 	ctx := cmd.Context()
 	ctx, cancel = context.WithCancel(ctx)
 	isRun = true
-	sigFn()
 
-	fmt.Println("start")
-	err := openTTY()
+	console.Debug("start")
+	_, err := it.open()
 	if err != nil {
 		console.Error("tty打开错误")
 		return
 	}
-	defer closeTTY()
-	for {
-		//if !isRun {
-		//	fmt.Println("rec")
-		//	break
-		//}
-		fmt.Println("r")
-		r, rerr := t.ReadRune()
-		//r, rerr := t.ReadString()
-		fmt.Println("ro")
-		if rerr != nil {
-			fmt.Println(rerr)
-			return
-		}
-		fmt.Println(r)
-	}
+	defer it.close()
+	closeWg := &sync.WaitGroup{}
+	sigFn(closeWg)
 
-	fmt.Println("end")
+	closeWg.Add(1)
+	go func() {
+		defer closeWg.Done()
+		<-ctx.Done()
+		it.close()
+	}()
 
+	readCh := make(chan rune, 1024)
+
+	readConsole(readCh)
+
+	handleConsole(ctx, closeWg, readCh)
+
+	<-ctx.Done()
+	closeWg.Wait()
+	console.Debug("end")
 	return
 	c, err := newCompleter()
 	if err != nil {
@@ -80,19 +82,81 @@ func Run(cmd *cobra.Command, args []string) {
 	p.Run()
 }
 
-func sigFn() {
+func sigFn(closeWg *sync.WaitGroup) {
 	sig := make(chan os.Signal, 2)
 	signal.Notify(sig, []os.Signal{syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM}...)
 
 	go func() {
 		s := <-sig
-		console.Info("recv quit sig")
+		console.Debug("recv quit sig")
+		closeWg.Add(1)
 		go func() {
+			defer closeWg.Done()
 			cancel()
-			isRun = false
+			it.close()
+			console.Debug("close end")
 		}()
 		<-sig
 		os.Exit(128 + int(s.(syscall.Signal)))
+	}()
+}
+
+func readConsole(ch chan<- rune) {
+	go func() {
+		for {
+			if it.tty == nil {
+				break
+			}
+			r, rerr := it.tty.ReadRune()
+			if it.tty == nil {
+				break
+			}
+			if rerr != nil {
+				console.Errorf("tty异常")
+				cancel()
+				break
+			}
+			ch <- r
+		}
+	}()
+}
+
+func handleConsole(ctx context.Context, closeWg *sync.WaitGroup, ch <-chan rune) {
+	var (
+		r  rune
+		rs []rune
+	)
+	closeWg.Add(1)
+	go func() {
+		defer closeWg.Done()
+		for {
+			select {
+			case r = <-ch:
+				console.Debug(r, ":", string(r))
+				switch r {
+				case 13:
+					_, _ = it.tty.Output().WriteString("\n")
+					fmt.Println(rs)
+					rs = nil
+				case 8, 127:
+					if len(rs) > 0 {
+						rs = rs[:len(rs)-1]
+						_, _ = it.tty.Output().WriteString("\b \b")
+					}
+				case 4:
+					cancel()
+					return
+				default:
+					if unicode.IsPrint(r) {
+						rs = append(rs, r)
+						_, _ = it.tty.Output().WriteString(string(r))
+					}
+				}
+			case <-ctx.Done():
+				console.Debug("handleConsole end")
+				return
+			}
+		}
 	}()
 }
 
