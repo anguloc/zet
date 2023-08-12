@@ -11,7 +11,6 @@ import (
 	"github.com/anguloc/zet/internal/dao/zet_model"
 	"github.com/anguloc/zet/internal/dao/zet_query"
 	"github.com/anguloc/zet/internal/dto"
-	"github.com/anguloc/zet/pkg/cron"
 	"github.com/anguloc/zet/pkg/log"
 )
 
@@ -20,11 +19,7 @@ type DmhyRss struct {
 	requestTable zet_query.IRequestDo
 }
 
-func Init() {
-	_ = cron.NewCron().RegisterJob("3 * * * *", NewDmhyRss())
-}
-
-func NewDmhyRss() *DmhyRss {
+func newDmhyRss() *DmhyRss {
 	return &DmhyRss{
 		client:       client.New(client.WithModule(dto.DmhyModule)),
 		requestTable: dao.Zet().Request.WithContext(nil),
@@ -52,7 +47,7 @@ func (w *DmhyRss) Run(ctx context.Context) error {
 	str := string(body)
 	err = w.requestTable.WithContext(ctx).Create(&zet_model.Request{
 		URL:        url,
-		Mark:       "dmhy_rss",
+		Mark:       dmHyRss,
 		RequestNum: 1,
 		Content:    &str,
 	})
