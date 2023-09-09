@@ -32,6 +32,7 @@ func newRequest(db *gorm.DB, opts ...gen.DOOption) request {
 	_request.Mark = field.NewString(tableName, "mark")
 	_request.RequestNum = field.NewInt32(tableName, "request_num")
 	_request.Content = field.NewString(tableName, "content")
+	_request.ParseStatus = field.NewInt32(tableName, "parse_status")
 	_request.CreatedAt = field.NewTime(tableName, "created_at")
 	_request.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -43,14 +44,15 @@ func newRequest(db *gorm.DB, opts ...gen.DOOption) request {
 type request struct {
 	requestDo requestDo
 
-	ALL        field.Asterisk
-	ID         field.Int64  // id
-	URL        field.String // 资源地址
-	Mark       field.String // 标识
-	RequestNum field.Int32  // 请求次数
-	Content    field.String // 请求原始结果
-	CreatedAt  field.Time   // 插入时间
-	UpdatedAt  field.Time   // 更新时间
+	ALL         field.Asterisk
+	ID          field.Int64  // id
+	URL         field.String // 资源地址
+	Mark        field.String // 标识
+	RequestNum  field.Int32  // 请求次数
+	Content     field.String // 请求原始结果
+	ParseStatus field.Int32  // 请求内容解析状态
+	CreatedAt   field.Time   // 插入时间
+	UpdatedAt   field.Time   // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -72,6 +74,7 @@ func (r *request) updateTableName(table string) *request {
 	r.Mark = field.NewString(table, "mark")
 	r.RequestNum = field.NewInt32(table, "request_num")
 	r.Content = field.NewString(table, "content")
+	r.ParseStatus = field.NewInt32(table, "parse_status")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -96,12 +99,13 @@ func (r *request) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (r *request) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 7)
+	r.fieldMap = make(map[string]field.Expr, 8)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["url"] = r.URL
 	r.fieldMap["mark"] = r.Mark
 	r.fieldMap["request_num"] = r.RequestNum
 	r.fieldMap["content"] = r.Content
+	r.fieldMap["parse_status"] = r.ParseStatus
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt
 }
