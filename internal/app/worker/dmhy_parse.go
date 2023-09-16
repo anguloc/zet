@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 
+	"github.com/anguloc/zet/internal/dao"
 	"github.com/anguloc/zet/internal/dao/zet_query"
 )
 
@@ -13,8 +14,8 @@ type DmhyParse struct {
 
 func newDmhyParse() *DmhyParse {
 	return &DmhyParse{
-		requestTable: nil,
-		rssTable:     nil,
+		requestTable: dao.Zet().Request.WithContext(nil),
+		rssTable:     dao.Zet().Rss.WithContext(nil),
 	}
 }
 

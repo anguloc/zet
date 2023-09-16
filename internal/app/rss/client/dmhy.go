@@ -45,6 +45,7 @@ func (d *Dmhy) client() *http.Client {
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 				hosts := map[string]string{
+					// TODO config
 					"www.dmhy.org:443": "172.67.98.15:443",
 				}
 				if n, ok := hosts[addr]; ok {

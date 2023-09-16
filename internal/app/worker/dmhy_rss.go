@@ -47,7 +47,7 @@ func (w *DmhyRss) Run(ctx context.Context) error {
 	str := string(body)
 	err = w.requestTable.WithContext(ctx).Create(&zet_model.Request{
 		URL:        url,
-		Mark:       dmHyRss,
+		Mark:       zet_model.MarkDmHyRss,
 		RequestNum: 1,
 		Content:    &str,
 	})

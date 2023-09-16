@@ -46,6 +46,9 @@ func New() IApplication {
 
 func (app *Application) Init(ctx context.Context, conf string) (err error) {
 	app.initOnce.Do(func() {
+		if conf == "" {
+			conf = "conf/conf.yml"
+		}
 		if err = app.initConf(ctx, conf); err != nil {
 			return
 		}
