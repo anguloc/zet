@@ -21,8 +21,8 @@ func main() {
 		return
 	}
 	c := gen.Config{
-		OutPath:           "./internal/app/repo/zet/query",
-		ModelPkgPath:      "./internal/app/repo/zet/model",
+		OutPath:           "./internal/app/repo/zetdao/query",
+		ModelPkgPath:      "./internal/app/repo/zetdao/model",
 		FieldNullable:     true,
 		FieldCoverable:    true,
 		FieldSignable:     true,

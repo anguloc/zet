@@ -6,23 +6,22 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/anguloc/zet/internal/app/repo/zetdao"
+	"github.com/anguloc/zet/internal/app/repo/zetdao/model"
 	"github.com/anguloc/zet/internal/app/rss/client"
-	"github.com/anguloc/zet/internal/dao"
-	"github.com/anguloc/zet/internal/dao/zet_model"
-	"github.com/anguloc/zet/internal/dao/zet_query"
 	"github.com/anguloc/zet/internal/dto"
 	"github.com/anguloc/zet/pkg/log"
 )
 
 type DmhyRss struct {
-	client       client.IClient
-	requestTable zet_query.Req
+	client client.IClient
+	dao    zetdao.Writer
 }
 
 func newDmhyRss() *DmhyRss {
 	return &DmhyRss{
-		client:       client.New(client.WithModule(dto.DmhyModule)),
-		requestTable: dao.Zet().Request.WithContext(nil),
+		client: client.New(client.WithModule(dto.DmhyModule)),
+		dao:    zetdao.New(),
 	}
 }
 
@@ -45,9 +44,9 @@ func (w *DmhyRss) Run(ctx context.Context) error {
 		return err
 	}
 	str := string(body)
-	err = w.requestTable.WithContext(ctx).Create(&zet_model.Request{
+	err = w.dao.InsertRequest(ctx, &model.Request{
 		URL:        url,
-		Mark:       zet_model.MarkDmHyRss,
+		Mark:       model.MarkDmHyRss,
 		RequestNum: 1,
 		Content:    &str,
 	})

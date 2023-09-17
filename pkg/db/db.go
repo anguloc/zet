@@ -45,6 +45,6 @@ func gormDB(c conf.Mysql) (*gorm.DB, error) {
 	return db, nil
 }
 
-func Zet() *gorm.DB {
-	return dbMap["db_zet"]
+func Zet() (*gorm.DB, error) {
+	return dbMap["db_zet"], nil
 }

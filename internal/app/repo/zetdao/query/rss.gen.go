@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/anguloc/zet/internal/app/repo/zet/model"
+	"github.com/anguloc/zet/internal/app/repo/zetdao/model"
 )
 
 func newRss(db *gorm.DB, opts ...gen.DOOption) rss {

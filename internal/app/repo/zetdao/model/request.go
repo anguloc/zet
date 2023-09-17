@@ -1,4 +1,4 @@
-package zet_model
+package model
 
 const (
 	MarkDmHyRss = "dmhy_rss"
