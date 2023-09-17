@@ -15,6 +15,20 @@ import (
 	"gorm.io/plugin/dbresolver"
 )
 
+var (
+	Q       = new(Query)
+	Request *request
+	Rss     *rss
+	Task    *task
+)
+
+func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
+	*Q = *Use(db, opts...)
+	Request = &Q.Request
+	Rss = &Q.Rss
+	Task = &Q.Task
+}
+
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:      db,

@@ -26,8 +26,14 @@ var defaultCron = newCron()
 
 func newCron() *Cron {
 	return &Cron{
-		mu:   &sync.Mutex{},
-		cron: cron.New(cron.WithLogger(cron.DiscardLogger)),
+		mu: &sync.Mutex{},
+		cron: cron.New(
+			cron.WithLogger(cron.DiscardLogger),
+			cron.WithChain(
+				cron.Recover(cron.DiscardLogger),
+				cron.SkipIfStillRunning(cron.DiscardLogger),
+			),
+		),
 	}
 }
 

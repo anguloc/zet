@@ -31,6 +31,7 @@ func main() {
 		FieldSignable:     true,
 		FieldWithIndexTag: true,
 		FieldWithTypeTag:  true,
+		Mode:              gen.WithDefaultQuery,
 	}
 
 	g := gen.NewGenerator(c)

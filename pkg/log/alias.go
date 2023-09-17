@@ -52,3 +52,7 @@ var (
 	Any         = zap.Any
 	NamedError  = zap.NamedError
 )
+
+func Err(err error) zap.Field {
+	return NamedError("err", err)
+}

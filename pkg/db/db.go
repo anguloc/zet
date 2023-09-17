@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/anguloc/zet/internal/app/repo/zetdao/query"
 	"github.com/anguloc/zet/pkg/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -26,6 +27,7 @@ func Init(_ context.Context) error {
 		if err != nil {
 			return
 		}
+		query.SetDefault(zetDB)
 		dbMap["db_zet"] = zetDB
 	})
 
