@@ -16,7 +16,7 @@ import (
 
 type DmhyRss struct {
 	client       client.IClient
-	requestTable zet_query.IRequestDo
+	requestTable zet_query.Req
 }
 
 func newDmhyRss() *DmhyRss {
