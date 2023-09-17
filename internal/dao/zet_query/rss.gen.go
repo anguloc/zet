@@ -101,6 +101,8 @@ func (r rss) TableName() string { return r.rssDo.TableName() }
 
 func (r rss) Alias() string { return r.rssDo.Alias() }
 
+func (r rss) Columns(cols ...field.Expr) gen.Columns { return r.rssDo.Columns(cols...) }
+
 func (r *rss) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := r.fieldMap[fieldName]
 	if !ok || _f == nil {
@@ -241,10 +243,6 @@ func (r rssDo) Select(conds ...field.Expr) IRssDo {
 
 func (r rssDo) Where(conds ...gen.Condition) IRssDo {
 	return r.withDO(r.DO.Where(conds...))
-}
-
-func (r rssDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) IRssDo {
-	return r.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
 func (r rssDo) Order(conds ...field.Expr) IRssDo {

@@ -89,6 +89,8 @@ func (r request) TableName() string { return r.requestDo.TableName() }
 
 func (r request) Alias() string { return r.requestDo.Alias() }
 
+func (r request) Columns(cols ...field.Expr) gen.Columns { return r.requestDo.Columns(cols...) }
+
 func (r *request) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := r.fieldMap[fieldName]
 	if !ok || _f == nil {
@@ -225,10 +227,6 @@ func (r requestDo) Select(conds ...field.Expr) IRequestDo {
 
 func (r requestDo) Where(conds ...gen.Condition) IRequestDo {
 	return r.withDO(r.DO.Where(conds...))
-}
-
-func (r requestDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) IRequestDo {
-	return r.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
 func (r requestDo) Order(conds ...field.Expr) IRequestDo {
