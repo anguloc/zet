@@ -5,17 +5,18 @@ import (
 	"fmt"
 
 	"github.com/anguloc/zet/pkg/conf"
+	"github.com/anguloc/zet/pkg/safe"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
-//go:generate go run ./cmd/gorm_gen/main.go
+//go:generate go run main.go
 
 var config string
 
 func main() {
-	flag.StringVar(&config, "config", "conf/conf.yml", "config path")
+	flag.StringVar(&config, "config", safe.Path("conf/conf.yml"), "config path")
 	flag.Parse()
 
 	if err := conf.Init(config); err != nil {
@@ -23,8 +24,8 @@ func main() {
 		return
 	}
 	c := gen.Config{
-		OutPath:           "./internal/app/repo/zetdao/query",
-		ModelPkgPath:      "./internal/app/repo/zetdao/model",
+		OutPath:           safe.Path("/internal/app/repo/zetdao/query"),
+		ModelPkgPath:      safe.Path("/internal/app/repo/zetdao/model"),
 		FieldNullable:     true,
 		FieldCoverable:    true,
 		FieldSignable:     true,
