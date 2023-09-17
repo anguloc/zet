@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate go run ./cmd/gorm_gen/main.go
+
 var config string
 
 func main() {

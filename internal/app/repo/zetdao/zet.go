@@ -7,7 +7,7 @@ import (
 	"github.com/anguloc/zet/internal/app/repo/zetdao/request"
 )
 
-//go:generate mockgen -destination gen_mock.go -package zet_query . IRssDo
+//go:generate mockgen -source $GOFILE -destination zet_mock.go -package $GOPACKAGE
 
 type Repo interface {
 	Reader

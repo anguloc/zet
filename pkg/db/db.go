@@ -19,6 +19,9 @@ func Init(_ context.Context) error {
 		zetDB *gorm.DB
 	)
 	initOnce.Do(func() {
+		if conf.Conf().DBZet.Host == "" {
+			return
+		}
 		zetDB, err = gormDB(conf.Conf().DBZet)
 		if err != nil {
 			return
