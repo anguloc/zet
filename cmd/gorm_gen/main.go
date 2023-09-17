@@ -28,7 +28,6 @@ func main() {
 		FieldSignable:     true,
 		FieldWithIndexTag: true,
 		FieldWithTypeTag:  true,
-		Mode:              gen.WithQueryInterface,
 	}
 
 	g := gen.NewGenerator(c)

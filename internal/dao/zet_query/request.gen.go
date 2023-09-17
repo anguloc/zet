@@ -83,7 +83,7 @@ func (r *request) updateTableName(table string) *request {
 	return r
 }
 
-func (r *request) WithContext(ctx context.Context) IRequestDo { return r.requestDo.WithContext(ctx) }
+func (r *request) WithContext(ctx context.Context) *requestDo { return r.requestDo.WithContext(ctx) }
 
 func (r request) TableName() string { return r.requestDo.TableName() }
 
@@ -124,156 +124,95 @@ func (r request) replaceDB(db *gorm.DB) request {
 
 type requestDo struct{ gen.DO }
 
-type IRequestDo interface {
-	gen.SubQuery
-	Debug() IRequestDo
-	WithContext(ctx context.Context) IRequestDo
-	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
-	ReplaceDB(db *gorm.DB)
-	ReadDB() IRequestDo
-	WriteDB() IRequestDo
-	As(alias string) gen.Dao
-	Session(config *gorm.Session) IRequestDo
-	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IRequestDo
-	Not(conds ...gen.Condition) IRequestDo
-	Or(conds ...gen.Condition) IRequestDo
-	Select(conds ...field.Expr) IRequestDo
-	Where(conds ...gen.Condition) IRequestDo
-	Order(conds ...field.Expr) IRequestDo
-	Distinct(cols ...field.Expr) IRequestDo
-	Omit(cols ...field.Expr) IRequestDo
-	Join(table schema.Tabler, on ...field.Expr) IRequestDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IRequestDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IRequestDo
-	Group(cols ...field.Expr) IRequestDo
-	Having(conds ...gen.Condition) IRequestDo
-	Limit(limit int) IRequestDo
-	Offset(offset int) IRequestDo
-	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IRequestDo
-	Unscoped() IRequestDo
-	Create(values ...*zet_model.Request) error
-	CreateInBatches(values []*zet_model.Request, batchSize int) error
-	Save(values ...*zet_model.Request) error
-	First() (*zet_model.Request, error)
-	Take() (*zet_model.Request, error)
-	Last() (*zet_model.Request, error)
-	Find() ([]*zet_model.Request, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*zet_model.Request, err error)
-	FindInBatches(result *[]*zet_model.Request, batchSize int, fc func(tx gen.Dao, batch int) error) error
-	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*zet_model.Request) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
-	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IRequestDo
-	Assign(attrs ...field.AssignExpr) IRequestDo
-	Joins(fields ...field.RelationField) IRequestDo
-	Preload(fields ...field.RelationField) IRequestDo
-	FirstOrInit() (*zet_model.Request, error)
-	FirstOrCreate() (*zet_model.Request, error)
-	FindByPage(offset int, limit int) (result []*zet_model.Request, count int64, err error)
-	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
-	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IRequestDo
-	UnderlyingDB() *gorm.DB
-	schema.Tabler
-}
-
-func (r requestDo) Debug() IRequestDo {
+func (r requestDo) Debug() *requestDo {
 	return r.withDO(r.DO.Debug())
 }
 
-func (r requestDo) WithContext(ctx context.Context) IRequestDo {
+func (r requestDo) WithContext(ctx context.Context) *requestDo {
 	return r.withDO(r.DO.WithContext(ctx))
 }
 
-func (r requestDo) ReadDB() IRequestDo {
+func (r requestDo) ReadDB() *requestDo {
 	return r.Clauses(dbresolver.Read)
 }
 
-func (r requestDo) WriteDB() IRequestDo {
+func (r requestDo) WriteDB() *requestDo {
 	return r.Clauses(dbresolver.Write)
 }
 
-func (r requestDo) Session(config *gorm.Session) IRequestDo {
+func (r requestDo) Session(config *gorm.Session) *requestDo {
 	return r.withDO(r.DO.Session(config))
 }
 
-func (r requestDo) Clauses(conds ...clause.Expression) IRequestDo {
+func (r requestDo) Clauses(conds ...clause.Expression) *requestDo {
 	return r.withDO(r.DO.Clauses(conds...))
 }
 
-func (r requestDo) Returning(value interface{}, columns ...string) IRequestDo {
+func (r requestDo) Returning(value interface{}, columns ...string) *requestDo {
 	return r.withDO(r.DO.Returning(value, columns...))
 }
 
-func (r requestDo) Not(conds ...gen.Condition) IRequestDo {
+func (r requestDo) Not(conds ...gen.Condition) *requestDo {
 	return r.withDO(r.DO.Not(conds...))
 }
 
-func (r requestDo) Or(conds ...gen.Condition) IRequestDo {
+func (r requestDo) Or(conds ...gen.Condition) *requestDo {
 	return r.withDO(r.DO.Or(conds...))
 }
 
-func (r requestDo) Select(conds ...field.Expr) IRequestDo {
+func (r requestDo) Select(conds ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Select(conds...))
 }
 
-func (r requestDo) Where(conds ...gen.Condition) IRequestDo {
+func (r requestDo) Where(conds ...gen.Condition) *requestDo {
 	return r.withDO(r.DO.Where(conds...))
 }
 
-func (r requestDo) Order(conds ...field.Expr) IRequestDo {
+func (r requestDo) Order(conds ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Order(conds...))
 }
 
-func (r requestDo) Distinct(cols ...field.Expr) IRequestDo {
+func (r requestDo) Distinct(cols ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Distinct(cols...))
 }
 
-func (r requestDo) Omit(cols ...field.Expr) IRequestDo {
+func (r requestDo) Omit(cols ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Omit(cols...))
 }
 
-func (r requestDo) Join(table schema.Tabler, on ...field.Expr) IRequestDo {
+func (r requestDo) Join(table schema.Tabler, on ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Join(table, on...))
 }
 
-func (r requestDo) LeftJoin(table schema.Tabler, on ...field.Expr) IRequestDo {
+func (r requestDo) LeftJoin(table schema.Tabler, on ...field.Expr) *requestDo {
 	return r.withDO(r.DO.LeftJoin(table, on...))
 }
 
-func (r requestDo) RightJoin(table schema.Tabler, on ...field.Expr) IRequestDo {
+func (r requestDo) RightJoin(table schema.Tabler, on ...field.Expr) *requestDo {
 	return r.withDO(r.DO.RightJoin(table, on...))
 }
 
-func (r requestDo) Group(cols ...field.Expr) IRequestDo {
+func (r requestDo) Group(cols ...field.Expr) *requestDo {
 	return r.withDO(r.DO.Group(cols...))
 }
 
-func (r requestDo) Having(conds ...gen.Condition) IRequestDo {
+func (r requestDo) Having(conds ...gen.Condition) *requestDo {
 	return r.withDO(r.DO.Having(conds...))
 }
 
-func (r requestDo) Limit(limit int) IRequestDo {
+func (r requestDo) Limit(limit int) *requestDo {
 	return r.withDO(r.DO.Limit(limit))
 }
 
-func (r requestDo) Offset(offset int) IRequestDo {
+func (r requestDo) Offset(offset int) *requestDo {
 	return r.withDO(r.DO.Offset(offset))
 }
 
-func (r requestDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IRequestDo {
+func (r requestDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *requestDo {
 	return r.withDO(r.DO.Scopes(funcs...))
 }
 
-func (r requestDo) Unscoped() IRequestDo {
+func (r requestDo) Unscoped() *requestDo {
 	return r.withDO(r.DO.Unscoped())
 }
 
@@ -339,22 +278,22 @@ func (r requestDo) FindInBatches(result *[]*zet_model.Request, batchSize int, fc
 	return r.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (r requestDo) Attrs(attrs ...field.AssignExpr) IRequestDo {
+func (r requestDo) Attrs(attrs ...field.AssignExpr) *requestDo {
 	return r.withDO(r.DO.Attrs(attrs...))
 }
 
-func (r requestDo) Assign(attrs ...field.AssignExpr) IRequestDo {
+func (r requestDo) Assign(attrs ...field.AssignExpr) *requestDo {
 	return r.withDO(r.DO.Assign(attrs...))
 }
 
-func (r requestDo) Joins(fields ...field.RelationField) IRequestDo {
+func (r requestDo) Joins(fields ...field.RelationField) *requestDo {
 	for _, _f := range fields {
 		r = *r.withDO(r.DO.Joins(_f))
 	}
 	return &r
 }
 
-func (r requestDo) Preload(fields ...field.RelationField) IRequestDo {
+func (r requestDo) Preload(fields ...field.RelationField) *requestDo {
 	for _, _f := range fields {
 		r = *r.withDO(r.DO.Preload(_f))
 	}

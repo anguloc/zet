@@ -61,9 +61,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
-	Request IRequestDo
-	Rss     IRssDo
-	Task    ITaskDo
+	Request *requestDo
+	Rss     *rssDo
+	Task    *taskDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {

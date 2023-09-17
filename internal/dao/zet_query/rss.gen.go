@@ -95,7 +95,7 @@ func (r *rss) updateTableName(table string) *rss {
 	return r
 }
 
-func (r *rss) WithContext(ctx context.Context) IRssDo { return r.rssDo.WithContext(ctx) }
+func (r *rss) WithContext(ctx context.Context) *rssDo { return r.rssDo.WithContext(ctx) }
 
 func (r rss) TableName() string { return r.rssDo.TableName() }
 
@@ -140,156 +140,95 @@ func (r rss) replaceDB(db *gorm.DB) rss {
 
 type rssDo struct{ gen.DO }
 
-type IRssDo interface {
-	gen.SubQuery
-	Debug() IRssDo
-	WithContext(ctx context.Context) IRssDo
-	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
-	ReplaceDB(db *gorm.DB)
-	ReadDB() IRssDo
-	WriteDB() IRssDo
-	As(alias string) gen.Dao
-	Session(config *gorm.Session) IRssDo
-	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IRssDo
-	Not(conds ...gen.Condition) IRssDo
-	Or(conds ...gen.Condition) IRssDo
-	Select(conds ...field.Expr) IRssDo
-	Where(conds ...gen.Condition) IRssDo
-	Order(conds ...field.Expr) IRssDo
-	Distinct(cols ...field.Expr) IRssDo
-	Omit(cols ...field.Expr) IRssDo
-	Join(table schema.Tabler, on ...field.Expr) IRssDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IRssDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IRssDo
-	Group(cols ...field.Expr) IRssDo
-	Having(conds ...gen.Condition) IRssDo
-	Limit(limit int) IRssDo
-	Offset(offset int) IRssDo
-	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IRssDo
-	Unscoped() IRssDo
-	Create(values ...*zet_model.Rss) error
-	CreateInBatches(values []*zet_model.Rss, batchSize int) error
-	Save(values ...*zet_model.Rss) error
-	First() (*zet_model.Rss, error)
-	Take() (*zet_model.Rss, error)
-	Last() (*zet_model.Rss, error)
-	Find() ([]*zet_model.Rss, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*zet_model.Rss, err error)
-	FindInBatches(result *[]*zet_model.Rss, batchSize int, fc func(tx gen.Dao, batch int) error) error
-	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*zet_model.Rss) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
-	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IRssDo
-	Assign(attrs ...field.AssignExpr) IRssDo
-	Joins(fields ...field.RelationField) IRssDo
-	Preload(fields ...field.RelationField) IRssDo
-	FirstOrInit() (*zet_model.Rss, error)
-	FirstOrCreate() (*zet_model.Rss, error)
-	FindByPage(offset int, limit int) (result []*zet_model.Rss, count int64, err error)
-	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
-	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IRssDo
-	UnderlyingDB() *gorm.DB
-	schema.Tabler
-}
-
-func (r rssDo) Debug() IRssDo {
+func (r rssDo) Debug() *rssDo {
 	return r.withDO(r.DO.Debug())
 }
 
-func (r rssDo) WithContext(ctx context.Context) IRssDo {
+func (r rssDo) WithContext(ctx context.Context) *rssDo {
 	return r.withDO(r.DO.WithContext(ctx))
 }
 
-func (r rssDo) ReadDB() IRssDo {
+func (r rssDo) ReadDB() *rssDo {
 	return r.Clauses(dbresolver.Read)
 }
 
-func (r rssDo) WriteDB() IRssDo {
+func (r rssDo) WriteDB() *rssDo {
 	return r.Clauses(dbresolver.Write)
 }
 
-func (r rssDo) Session(config *gorm.Session) IRssDo {
+func (r rssDo) Session(config *gorm.Session) *rssDo {
 	return r.withDO(r.DO.Session(config))
 }
 
-func (r rssDo) Clauses(conds ...clause.Expression) IRssDo {
+func (r rssDo) Clauses(conds ...clause.Expression) *rssDo {
 	return r.withDO(r.DO.Clauses(conds...))
 }
 
-func (r rssDo) Returning(value interface{}, columns ...string) IRssDo {
+func (r rssDo) Returning(value interface{}, columns ...string) *rssDo {
 	return r.withDO(r.DO.Returning(value, columns...))
 }
 
-func (r rssDo) Not(conds ...gen.Condition) IRssDo {
+func (r rssDo) Not(conds ...gen.Condition) *rssDo {
 	return r.withDO(r.DO.Not(conds...))
 }
 
-func (r rssDo) Or(conds ...gen.Condition) IRssDo {
+func (r rssDo) Or(conds ...gen.Condition) *rssDo {
 	return r.withDO(r.DO.Or(conds...))
 }
 
-func (r rssDo) Select(conds ...field.Expr) IRssDo {
+func (r rssDo) Select(conds ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Select(conds...))
 }
 
-func (r rssDo) Where(conds ...gen.Condition) IRssDo {
+func (r rssDo) Where(conds ...gen.Condition) *rssDo {
 	return r.withDO(r.DO.Where(conds...))
 }
 
-func (r rssDo) Order(conds ...field.Expr) IRssDo {
+func (r rssDo) Order(conds ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Order(conds...))
 }
 
-func (r rssDo) Distinct(cols ...field.Expr) IRssDo {
+func (r rssDo) Distinct(cols ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Distinct(cols...))
 }
 
-func (r rssDo) Omit(cols ...field.Expr) IRssDo {
+func (r rssDo) Omit(cols ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Omit(cols...))
 }
 
-func (r rssDo) Join(table schema.Tabler, on ...field.Expr) IRssDo {
+func (r rssDo) Join(table schema.Tabler, on ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Join(table, on...))
 }
 
-func (r rssDo) LeftJoin(table schema.Tabler, on ...field.Expr) IRssDo {
+func (r rssDo) LeftJoin(table schema.Tabler, on ...field.Expr) *rssDo {
 	return r.withDO(r.DO.LeftJoin(table, on...))
 }
 
-func (r rssDo) RightJoin(table schema.Tabler, on ...field.Expr) IRssDo {
+func (r rssDo) RightJoin(table schema.Tabler, on ...field.Expr) *rssDo {
 	return r.withDO(r.DO.RightJoin(table, on...))
 }
 
-func (r rssDo) Group(cols ...field.Expr) IRssDo {
+func (r rssDo) Group(cols ...field.Expr) *rssDo {
 	return r.withDO(r.DO.Group(cols...))
 }
 
-func (r rssDo) Having(conds ...gen.Condition) IRssDo {
+func (r rssDo) Having(conds ...gen.Condition) *rssDo {
 	return r.withDO(r.DO.Having(conds...))
 }
 
-func (r rssDo) Limit(limit int) IRssDo {
+func (r rssDo) Limit(limit int) *rssDo {
 	return r.withDO(r.DO.Limit(limit))
 }
 
-func (r rssDo) Offset(offset int) IRssDo {
+func (r rssDo) Offset(offset int) *rssDo {
 	return r.withDO(r.DO.Offset(offset))
 }
 
-func (r rssDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IRssDo {
+func (r rssDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *rssDo {
 	return r.withDO(r.DO.Scopes(funcs...))
 }
 
-func (r rssDo) Unscoped() IRssDo {
+func (r rssDo) Unscoped() *rssDo {
 	return r.withDO(r.DO.Unscoped())
 }
 
@@ -355,22 +294,22 @@ func (r rssDo) FindInBatches(result *[]*zet_model.Rss, batchSize int, fc func(tx
 	return r.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (r rssDo) Attrs(attrs ...field.AssignExpr) IRssDo {
+func (r rssDo) Attrs(attrs ...field.AssignExpr) *rssDo {
 	return r.withDO(r.DO.Attrs(attrs...))
 }
 
-func (r rssDo) Assign(attrs ...field.AssignExpr) IRssDo {
+func (r rssDo) Assign(attrs ...field.AssignExpr) *rssDo {
 	return r.withDO(r.DO.Assign(attrs...))
 }
 
-func (r rssDo) Joins(fields ...field.RelationField) IRssDo {
+func (r rssDo) Joins(fields ...field.RelationField) *rssDo {
 	for _, _f := range fields {
 		r = *r.withDO(r.DO.Joins(_f))
 	}
 	return &r
 }
 
-func (r rssDo) Preload(fields ...field.RelationField) IRssDo {
+func (r rssDo) Preload(fields ...field.RelationField) *rssDo {
 	for _, _f := range fields {
 		r = *r.withDO(r.DO.Preload(_f))
 	}

@@ -86,7 +86,7 @@ func (t *task) updateTableName(table string) *task {
 	return t
 }
 
-func (t *task) WithContext(ctx context.Context) ITaskDo { return t.taskDo.WithContext(ctx) }
+func (t *task) WithContext(ctx context.Context) *taskDo { return t.taskDo.WithContext(ctx) }
 
 func (t task) TableName() string { return t.taskDo.TableName() }
 
@@ -128,156 +128,95 @@ func (t task) replaceDB(db *gorm.DB) task {
 
 type taskDo struct{ gen.DO }
 
-type ITaskDo interface {
-	gen.SubQuery
-	Debug() ITaskDo
-	WithContext(ctx context.Context) ITaskDo
-	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
-	ReplaceDB(db *gorm.DB)
-	ReadDB() ITaskDo
-	WriteDB() ITaskDo
-	As(alias string) gen.Dao
-	Session(config *gorm.Session) ITaskDo
-	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) ITaskDo
-	Not(conds ...gen.Condition) ITaskDo
-	Or(conds ...gen.Condition) ITaskDo
-	Select(conds ...field.Expr) ITaskDo
-	Where(conds ...gen.Condition) ITaskDo
-	Order(conds ...field.Expr) ITaskDo
-	Distinct(cols ...field.Expr) ITaskDo
-	Omit(cols ...field.Expr) ITaskDo
-	Join(table schema.Tabler, on ...field.Expr) ITaskDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) ITaskDo
-	RightJoin(table schema.Tabler, on ...field.Expr) ITaskDo
-	Group(cols ...field.Expr) ITaskDo
-	Having(conds ...gen.Condition) ITaskDo
-	Limit(limit int) ITaskDo
-	Offset(offset int) ITaskDo
-	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) ITaskDo
-	Unscoped() ITaskDo
-	Create(values ...*zet_model.Task) error
-	CreateInBatches(values []*zet_model.Task, batchSize int) error
-	Save(values ...*zet_model.Task) error
-	First() (*zet_model.Task, error)
-	Take() (*zet_model.Task, error)
-	Last() (*zet_model.Task, error)
-	Find() ([]*zet_model.Task, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*zet_model.Task, err error)
-	FindInBatches(result *[]*zet_model.Task, batchSize int, fc func(tx gen.Dao, batch int) error) error
-	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*zet_model.Task) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
-	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) ITaskDo
-	Assign(attrs ...field.AssignExpr) ITaskDo
-	Joins(fields ...field.RelationField) ITaskDo
-	Preload(fields ...field.RelationField) ITaskDo
-	FirstOrInit() (*zet_model.Task, error)
-	FirstOrCreate() (*zet_model.Task, error)
-	FindByPage(offset int, limit int) (result []*zet_model.Task, count int64, err error)
-	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
-	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) ITaskDo
-	UnderlyingDB() *gorm.DB
-	schema.Tabler
-}
-
-func (t taskDo) Debug() ITaskDo {
+func (t taskDo) Debug() *taskDo {
 	return t.withDO(t.DO.Debug())
 }
 
-func (t taskDo) WithContext(ctx context.Context) ITaskDo {
+func (t taskDo) WithContext(ctx context.Context) *taskDo {
 	return t.withDO(t.DO.WithContext(ctx))
 }
 
-func (t taskDo) ReadDB() ITaskDo {
+func (t taskDo) ReadDB() *taskDo {
 	return t.Clauses(dbresolver.Read)
 }
 
-func (t taskDo) WriteDB() ITaskDo {
+func (t taskDo) WriteDB() *taskDo {
 	return t.Clauses(dbresolver.Write)
 }
 
-func (t taskDo) Session(config *gorm.Session) ITaskDo {
+func (t taskDo) Session(config *gorm.Session) *taskDo {
 	return t.withDO(t.DO.Session(config))
 }
 
-func (t taskDo) Clauses(conds ...clause.Expression) ITaskDo {
+func (t taskDo) Clauses(conds ...clause.Expression) *taskDo {
 	return t.withDO(t.DO.Clauses(conds...))
 }
 
-func (t taskDo) Returning(value interface{}, columns ...string) ITaskDo {
+func (t taskDo) Returning(value interface{}, columns ...string) *taskDo {
 	return t.withDO(t.DO.Returning(value, columns...))
 }
 
-func (t taskDo) Not(conds ...gen.Condition) ITaskDo {
+func (t taskDo) Not(conds ...gen.Condition) *taskDo {
 	return t.withDO(t.DO.Not(conds...))
 }
 
-func (t taskDo) Or(conds ...gen.Condition) ITaskDo {
+func (t taskDo) Or(conds ...gen.Condition) *taskDo {
 	return t.withDO(t.DO.Or(conds...))
 }
 
-func (t taskDo) Select(conds ...field.Expr) ITaskDo {
+func (t taskDo) Select(conds ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Select(conds...))
 }
 
-func (t taskDo) Where(conds ...gen.Condition) ITaskDo {
+func (t taskDo) Where(conds ...gen.Condition) *taskDo {
 	return t.withDO(t.DO.Where(conds...))
 }
 
-func (t taskDo) Order(conds ...field.Expr) ITaskDo {
+func (t taskDo) Order(conds ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Order(conds...))
 }
 
-func (t taskDo) Distinct(cols ...field.Expr) ITaskDo {
+func (t taskDo) Distinct(cols ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Distinct(cols...))
 }
 
-func (t taskDo) Omit(cols ...field.Expr) ITaskDo {
+func (t taskDo) Omit(cols ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Omit(cols...))
 }
 
-func (t taskDo) Join(table schema.Tabler, on ...field.Expr) ITaskDo {
+func (t taskDo) Join(table schema.Tabler, on ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Join(table, on...))
 }
 
-func (t taskDo) LeftJoin(table schema.Tabler, on ...field.Expr) ITaskDo {
+func (t taskDo) LeftJoin(table schema.Tabler, on ...field.Expr) *taskDo {
 	return t.withDO(t.DO.LeftJoin(table, on...))
 }
 
-func (t taskDo) RightJoin(table schema.Tabler, on ...field.Expr) ITaskDo {
+func (t taskDo) RightJoin(table schema.Tabler, on ...field.Expr) *taskDo {
 	return t.withDO(t.DO.RightJoin(table, on...))
 }
 
-func (t taskDo) Group(cols ...field.Expr) ITaskDo {
+func (t taskDo) Group(cols ...field.Expr) *taskDo {
 	return t.withDO(t.DO.Group(cols...))
 }
 
-func (t taskDo) Having(conds ...gen.Condition) ITaskDo {
+func (t taskDo) Having(conds ...gen.Condition) *taskDo {
 	return t.withDO(t.DO.Having(conds...))
 }
 
-func (t taskDo) Limit(limit int) ITaskDo {
+func (t taskDo) Limit(limit int) *taskDo {
 	return t.withDO(t.DO.Limit(limit))
 }
 
-func (t taskDo) Offset(offset int) ITaskDo {
+func (t taskDo) Offset(offset int) *taskDo {
 	return t.withDO(t.DO.Offset(offset))
 }
 
-func (t taskDo) Scopes(funcs ...func(gen.Dao) gen.Dao) ITaskDo {
+func (t taskDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *taskDo {
 	return t.withDO(t.DO.Scopes(funcs...))
 }
 
-func (t taskDo) Unscoped() ITaskDo {
+func (t taskDo) Unscoped() *taskDo {
 	return t.withDO(t.DO.Unscoped())
 }
 
@@ -343,22 +282,22 @@ func (t taskDo) FindInBatches(result *[]*zet_model.Task, batchSize int, fc func(
 	return t.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (t taskDo) Attrs(attrs ...field.AssignExpr) ITaskDo {
+func (t taskDo) Attrs(attrs ...field.AssignExpr) *taskDo {
 	return t.withDO(t.DO.Attrs(attrs...))
 }
 
-func (t taskDo) Assign(attrs ...field.AssignExpr) ITaskDo {
+func (t taskDo) Assign(attrs ...field.AssignExpr) *taskDo {
 	return t.withDO(t.DO.Assign(attrs...))
 }
 
-func (t taskDo) Joins(fields ...field.RelationField) ITaskDo {
+func (t taskDo) Joins(fields ...field.RelationField) *taskDo {
 	for _, _f := range fields {
 		t = *t.withDO(t.DO.Joins(_f))
 	}
 	return &t
 }
 
-func (t taskDo) Preload(fields ...field.RelationField) ITaskDo {
+func (t taskDo) Preload(fields ...field.RelationField) *taskDo {
 	for _, _f := range fields {
 		t = *t.withDO(t.DO.Preload(_f))
 	}
