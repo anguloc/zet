@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -74,7 +73,7 @@ func (app *Application) initConf(_ context.Context, config string) error {
 
 func (app *Application) initWorker(ctx context.Context) error {
 	if len(app.workers) == 0 {
-		return fmt.Errorf("failed to missing worker of run")
+		return nil
 	}
 	eg, _ := errgroup.WithContext(ctx)
 	for _, worker := range app.workers {

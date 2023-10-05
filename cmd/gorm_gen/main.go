@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/anguloc/zet/pkg/conf"
+	"github.com/anguloc/zet/pkg/db"
 	"github.com/anguloc/zet/pkg/safe"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
@@ -36,15 +37,15 @@ func main() {
 
 	g := gen.NewGenerator(c)
 
-	db, err := gorm.Open(mysql.Open(conf.Conf().DBZet.Dsn()))
+	conn, err := gorm.Open(mysql.Open(db.ZetDSN(conf.Conf().DBZet)))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	g.UseDB(db)
+	g.UseDB(conn)
 
-	tables, err := db.Migrator().GetTables()
+	tables, err := conn.Migrator().GetTables()
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/anguloc/zet/pkg/conf"
 )
 
 type Dmhy struct {
@@ -44,17 +46,14 @@ func (d *Dmhy) client() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-				hosts := map[string]string{
-					// TODO config
-					"www.dmhy.org:443": "172.67.98.15:443",
-				}
+				hosts := conf.Conf().Dmhy.Host
 				if n, ok := hosts[addr]; ok {
 					addr = n
 				}
-				d := &net.Dialer{
+				di := &net.Dialer{
 					Timeout: time.Second * 10,
 				}
-				return d.DialContext(ctx, network, addr)
+				return di.DialContext(ctx, network, addr)
 			},
 		},
 	}

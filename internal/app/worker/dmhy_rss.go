@@ -18,7 +18,7 @@ type DmhyRss struct {
 	requestTable irequest.Writer
 }
 
-func newDmhyRss() *DmhyRss {
+func NewDmhyRss() *DmhyRss {
 	return &DmhyRss{
 		client:       client.New(client.WithModule(dto.DmhyModule)),
 		requestTable: irequest.New(),

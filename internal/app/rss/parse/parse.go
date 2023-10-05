@@ -7,6 +7,8 @@ import (
 	"github.com/anguloc/zet/internal/dto"
 )
 
+//go:generate mockgen -source $GOFILE -destination parse_mock.go -package $GOPACKAGE
+
 type IParse interface {
 	SetData(data []byte) IParse
 	Run(ctx context.Context) (*data.List, error)

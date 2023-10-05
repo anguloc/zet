@@ -64,6 +64,21 @@ func (mr *MockRepoMockRecorder) Insert(ctx, data interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepo)(nil).Insert), ctx, data)
 }
 
+// UpdateStatusByIds mocks base method.
+func (m *MockRepo) UpdateStatusByIds(ctx context.Context, ids []int64, newStatus, oldStatus int32) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateStatusByIds", ctx, ids, newStatus, oldStatus)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateStatusByIds indicates an expected call of UpdateStatusByIds.
+func (mr *MockRepoMockRecorder) UpdateStatusByIds(ctx, ids, newStatus, oldStatus interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusByIds", reflect.TypeOf((*MockRepo)(nil).UpdateStatusByIds), ctx, ids, newStatus, oldStatus)
+}
+
 // MockReader is a mock of Reader interface.
 type MockReader struct {
 	ctrl     *gomock.Controller
@@ -137,4 +152,19 @@ func (m *MockWriter) Insert(ctx context.Context, data *model.Request) error {
 func (mr *MockWriterMockRecorder) Insert(ctx, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockWriter)(nil).Insert), ctx, data)
+}
+
+// UpdateStatusByIds mocks base method.
+func (m *MockWriter) UpdateStatusByIds(ctx context.Context, ids []int64, newStatus, oldStatus int32) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateStatusByIds", ctx, ids, newStatus, oldStatus)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateStatusByIds indicates an expected call of UpdateStatusByIds.
+func (mr *MockWriterMockRecorder) UpdateStatusByIds(ctx, ids, newStatus, oldStatus interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusByIds", reflect.TypeOf((*MockWriter)(nil).UpdateStatusByIds), ctx, ids, newStatus, oldStatus)
 }

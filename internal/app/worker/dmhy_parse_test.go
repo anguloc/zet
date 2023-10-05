@@ -1,94 +1,92 @@
 package worker
 
 import (
-	"context"
 	"testing"
 
-	"github.com/anguloc/zet/internal/dao"
-	"github.com/anguloc/zet/internal/dao/zet_query"
+	"github.com/anguloc/zet/internal/app/repo/zetdao/irequest"
+	"github.com/anguloc/zet/internal/app/repo/zetdao/irss"
+	"github.com/anguloc/zet/internal/app/repo/zetdao/model"
+	"github.com/anguloc/zet/internal/app/rss/data"
+	"github.com/anguloc/zet/internal/app/rss/parse"
+	"github.com/anguloc/zet/pkg/application"
+	"github.com/anguloc/zet/pkg/testx"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	//if err := application.New().Init(context.TODO(), ""); err != nil {
-	//	panic(err)
-	//}
+	if err := application.New().Init(testx.Context(nil), ""); err != nil {
+		panic(err)
+	}
 	m.Run()
 }
 
-type Foo interface {
-	Bar
-	A()
-}
-
-type Bar interface {
-	a()
-	B()
-}
-
-type Obj struct {
-}
-
-func (o *Obj) A() {
-
-}
-
-func (o *Obj) B() {
-
-}
-
-//func (o *Obj) a() {
-//
-//}
-
-// go test ./internal/app/worker/ -v -run TestDmhyParse_Run$ --count=1
-func TestDmhyParse_Run(t *testing.T) {
-	ctx := context.TODO()
+// go test ./internal/app/worker/ -v -run TestDmhyParse_run$ --count=1
+func TestDmhyParse_run(t *testing.T) {
+	ctx := testx.Context(nil)
 
 	ctrl := gomock.NewController(t)
-	_ = ctrl
+	defer ctrl.Finish()
 
-	//var aa zet_query.IRssDo = zet_query.NewMockIRssDo(ctrl)
-	//_ = aa
+	reqTable := irequest.NewMockRepo(ctrl)
+	reqTable.EXPECT().
+		FirstByMarkStatus(gomock.Any(), model.MarkDmHyRss, int32(model.RequestParseInit)).
+		Return(&model.Request{
+			ID:          1,
+			Mark:        model.MarkDmHyRss,
+			ParseStatus: model.RequestParseInit,
+			Content:     new(string),
+		}, nil).
+		Times(1)
+	reqTable.EXPECT().
+		UpdateStatusByIds(gomock.Any(), []int64{1}, int32(model.RequestParsing), int32(model.RequestParseInit)).
+		Return(int64(1), nil).
+		Times(1)
+	reqTable.EXPECT().
+		UpdateStatusByIds(gomock.Any(), []int64{1}, int32(model.RequestParseSuccess), int32(model.RequestParsing)).
+		Return(int64(1), nil).
+		Times(1)
 
-	println(123)
-
-	return
-
-	type fields struct {
-		requestTable zet_query.IRequestDo
-		rssTable     zet_query.IRssDo
-	}
-	type args struct {
-		ctx context.Context
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "正常解析",
-			fields: fields{
-				requestTable: dao.Zet().Request.WithContext(nil),
-				rssTable:     nil,
+	rssTable := irss.NewMockRepo(ctrl)
+	rssTable.EXPECT().
+		FindByMarkList(gomock.Any(), []string{"dmhy_rss_test_a_uk", "dmhy_rss_test_b_uk"}).
+		Return([]*model.Rss{
+			{
+				ID:   1,
+				Mark: "dmhy_rss_test_a_uk",
 			},
-			args: args{
-				ctx: ctx,
+		}, nil).
+		Times(1)
+	rssTable.EXPECT().
+		BatchInsertRss(gomock.Any(), gomock.Any()).
+		Return(int64(1), nil).
+		Times(1)
+
+	parser := parse.NewMockIParse(ctrl)
+	parser.EXPECT().SetData(gomock.Any()).Return(parser).Times(1)
+	parser.EXPECT().Run(gomock.Any()).Return(&data.List{
+		Data: []*data.Item{
+			{
+				Title:  "test_a",
+				Link:   "test_link",
+				Author: "test_author",
+				UK:     "test_a_uk",
 			},
-			wantErr: false,
+			{
+				Title:  "test_b",
+				Link:   "test_link",
+				Author: "test_author",
+				UK:     "test_b_uk",
+			},
 		},
+	}, nil).Times(1)
+
+	d := &DmhyParse{
+		requestTable: reqTable,
+		rssTable:     rssTable,
+		parse:        parser,
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			w := &DmhyParse{
-				requestTable: tt.fields.requestTable,
-				rssTable:     tt.fields.rssTable,
-			}
-			if err := w.Run(tt.args.ctx); (err != nil) != tt.wantErr {
-				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+	//d = newDmhyParse()
+	err := d.Run(ctx)
+	assert.Nil(t, err)
 }

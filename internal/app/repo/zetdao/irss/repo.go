@@ -14,10 +14,11 @@ type Repo interface {
 }
 
 type Reader interface {
-	FirstByMark(ctx context.Context, mark string) (*model.Rss, error)
+	FindByMarkList(ctx context.Context, mark []string) ([]*model.Rss, error)
 }
 
 type Writer interface {
+	BatchInsertRss(ctx context.Context, values []*model.Rss) (int64, error)
 }
 
 type Rss struct {

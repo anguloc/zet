@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/anguloc/zet/pkg/safe"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -14,28 +15,28 @@ type Logger struct {
 	level   zapcore.Level
 }
 
-func (l *Logger) Debug(ctx context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Debug(ctx context.Context, msg string, fields ...Field) {
 	if l.level > zap.DebugLevel {
 		return
 	}
 	l.handler.Debug(msg, fields...)
 }
 
-func (l *Logger) Info(ctx context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Info(ctx context.Context, msg string, fields ...Field) {
 	if l.level > zap.InfoLevel {
 		return
 	}
 	l.handler.Info(msg, fields...)
 }
 
-func (l *Logger) Warn(ctx context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Warn(ctx context.Context, msg string, fields ...Field) {
 	if l.level > zap.WarnLevel {
 		return
 	}
 	l.handler.Warn(msg, fields...)
 }
 
-func (l *Logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Error(ctx context.Context, msg string, fields ...Field) {
 	if l.level > zap.ErrorLevel {
 		return
 	}
@@ -57,7 +58,7 @@ func newLogger() *Logger {
 	cores = append(cores, zapcore.NewCore(
 		zapcore.NewJSONEncoder(ec),
 		zapcore.AddSync(zapcore.AddSync(&lumberjack.Logger{
-			Filename:   "log/error.log",
+			Filename:   safe.Path("log/error.log"),
 			MaxSize:    512,
 			MaxBackups: 3,
 			LocalTime:  true,
@@ -71,7 +72,7 @@ func newLogger() *Logger {
 	cores = append(cores, zapcore.NewCore(
 		zapcore.NewJSONEncoder(ec),
 		zapcore.AddSync(zapcore.AddSync(&lumberjack.Logger{
-			Filename:   "log/access.log",
+			Filename:   safe.Path("log/access.log"),
 			MaxSize:    512,
 			MaxBackups: 3,
 			LocalTime:  true,
@@ -82,7 +83,7 @@ func newLogger() *Logger {
 	))
 
 	var opt []zap.Option
-	opt = append(opt, zap.AddCaller(), zap.AddCallerSkip(1))
+	opt = append(opt, zap.AddCaller(), zap.AddCallerSkip(2))
 
 	zapLogger := zap.New(zapcore.NewTee(cores...), opt...)
 	return &Logger{

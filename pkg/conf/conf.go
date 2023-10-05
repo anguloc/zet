@@ -2,8 +2,6 @@ package conf
 
 import (
 	"github.com/spf13/viper"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 )
 
 var conf = &Config{
@@ -12,6 +10,7 @@ var conf = &Config{
 		TmpDir: "tmp",
 	},
 	DBZet: Mysql{
+		Switch:       "skip", // auto启动时尝试连接，must强依赖db，其他跳过db初始化
 		Host:         "127.0.0.1",
 		Port:         "3306",
 		DBName:       "zet",
@@ -23,10 +22,10 @@ var conf = &Config{
 		MaxLifeTime:  300,
 		MaxIdleTime:  300,
 	},
-	Rss: Rss{
-		Dmhy: Dmhy{
-			TitlePattern: nil,
-		},
+	Dmhy: Dmhy{
+		Switch:       "",
+		TitlePattern: nil,
+		Host:         map[string]string{},
 	},
 }
 
@@ -35,7 +34,7 @@ func Conf() *Config {
 }
 
 func Init(config string) error {
-	v := viper.New()
+	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
 	v.SetConfigFile(config)
 	v.SetConfigType("yaml")
 	if err := v.ReadInConfig(); err != nil {
@@ -44,15 +43,13 @@ func Init(config string) error {
 	if err := v.Unmarshal(conf); err != nil {
 		return err
 	}
-
 	return nil
-
 }
 
 type Config struct {
 	Global Global `mapstructure:"global" json:"global" yaml:"global"`
 	DBZet  Mysql  `mapstructure:"db_zet" json:"db_zet" yaml:"db_zet"`
-	Rss    Rss    `mapstructure:"rss" json:"rss" yaml:"rss"`
+	Dmhy   Dmhy   `mapstructure:"dmhy" json:"dmhy" yaml:"dmhy"`
 }
 
 type Global struct {
@@ -61,6 +58,7 @@ type Global struct {
 }
 
 type Mysql struct {
+	Switch       string `mapstructure:"switch" json:"switch" yaml:"switch"`
 	Host         string `mapstructure:"host" json:"host" yaml:"host"`
 	Port         string `mapstructure:"port" json:"port" yaml:"port"`
 	DBName       string `mapstructure:"db_name" json:"db_name" yaml:"db_name"`
@@ -73,23 +71,24 @@ type Mysql struct {
 	MaxIdleTime  int    `mapstructure:"max_idle_time" json:"max_idle_time" yaml:"max_idle_time"`
 }
 
-func (m Mysql) Dsn() string {
-	return m.User + ":" + m.Password + "@tcp(" + m.Host + ":" + m.Port + ")/" + m.DBName + "?" + m.Config
+func (m Mysql) Skip() bool {
+	return !m.Auto() && !m.Must()
 }
 
-func (m Mysql) GormConfig() *gorm.Config {
-	return &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
-		},
-		DisableForeignKeyConstraintWhenMigrating: true,
-	}
+func (m Mysql) Auto() bool {
+	return m.Switch == "auto"
 }
 
-type Rss struct {
-	Dmhy `mapstructure:"dmhy" json:"dmhy" yaml:"dmhy"`
+func (m Mysql) Must() bool {
+	return m.Switch == "must"
 }
 
 type Dmhy struct {
-	TitlePattern []string `mapstructure:"title_pattern" json:"title_pattern" yaml:"title_pattern"`
+	Switch       string            `mapstructure:"switch" json:"switch" yaml:"switch"`
+	TitlePattern []string          `mapstructure:"title_pattern" json:"title_pattern" yaml:"title_pattern"`
+	Host         map[string]string `mapstructure:"host" json:"host" yaml:"host"`
+}
+
+func (d Dmhy) IsSwitch() bool {
+	return d.Switch == "1"
 }

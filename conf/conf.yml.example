@@ -1,4 +1,5 @@
 db_zet:
+  switch: "must" # must表示强依赖db，auto表示在初始化尝试连接db但不影响后续，其他会初始化时跳过db连接
   host: ""
   port: ""
   user: ""
@@ -10,3 +11,7 @@ db_zet:
   # max_life_time: 300
   # max_edle_time: 300
 
+dmhy:
+  switch: "" # 字符串1表示开启，其他关闭，此项强依赖db
+  host:
+    'www.dmhy.org:443': "172.67.98.15:443" # 没梯子没法直接访问，可通过指定hosts访问

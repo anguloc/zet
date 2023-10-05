@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/anguloc/zet/internal/app/worker"
+	"github.com/anguloc/zet/pkg/conf"
 	"github.com/anguloc/zet/pkg/log"
 )
 
@@ -15,6 +17,10 @@ func NewWorker() *Worker {
 }
 
 func (w *Worker) Init(ctx context.Context) error {
+	if conf.Conf().Dmhy.IsSwitch() {
+		_ = NewCron().RegisterJob("3 * * * *", worker.NewDmhyRss())
+		_ = NewCron().RegisterJob("*/5 * * * *", worker.NewDmhyParse())
+	}
 	return nil
 }
 
