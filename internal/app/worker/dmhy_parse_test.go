@@ -15,7 +15,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	if err := application.New().Init(testx.Context(nil), ""); err != nil {
+	if err := application.New().Init(testx.Context(nil), application.WithOptionConfig("")); err != nil {
 		panic(err)
 	}
 	m.Run()

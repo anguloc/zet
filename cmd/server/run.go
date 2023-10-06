@@ -26,7 +26,7 @@ func Run(cmd *cobra.Command, _ []string) {
 	// app.RegisterWorker("foo", &worker.FooWorker{})
 	// app.RegisterWorker("bar", &worker.BarWorker{})
 
-	if err = app.Init(ctx, config); err != nil {
+	if err = app.Init(ctx, application.WithOptionConfig(config)); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

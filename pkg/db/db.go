@@ -19,7 +19,7 @@ var initOnce = sync.Once{}
 
 func Init(ctx context.Context) error {
 	if conf.Conf().DBZet.Skip() {
-		log.Info(ctx, "db_init_skip")
+		log.Debug(ctx, "db_init_skip")
 		return nil
 	}
 	var (

@@ -11,9 +11,59 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/anguloc/zet/pkg/application"
+	"github.com/anguloc/zet/pkg/console"
 )
 
+type ADemo struct {
+}
+
+func (A ADemo) Init(ctx context.Context) error {
+	return nil
+}
+
+func (A ADemo) Run(ctx context.Context) error {
+	var isStop = false
+	go func() {
+		select {
+		case <-ctx.Done():
+			isStop = true
+		}
+	}()
+	for !isStop {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Println(1)
+	}
+
+	return nil
+}
+
 func main() {
+	console.SetLevel(console.DebugLevel, console.InfoLevel, console.WarnLevel, console.ErrorLevel)
+	ctx := context.TODO()
+	app := application.New()
+
+	app.RegisterWorker("ADemo", &ADemo{})
+
+	_ = app.Init(ctx)
+
+	if err := app.Run(ctx); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	return
+
+	ctx, cancel := context.WithCancel(context.TODO())
+	wg := &sync.WaitGroup{}
+
+	select {
+	case <-ctx.Done():
+
+	}
+
+	r(wg, cancel)
+
 	fmt.Println("start")
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -35,15 +85,12 @@ func main() {
 	fmt.Println("end")
 }
 
-func r(ctx context.Context) {
-	wg := &sync.WaitGroup{}
+func r(wg *sync.WaitGroup, cancel func()) {
 	sig := make(chan os.Signal, 2)
 	signal.Notify(sig, []os.Signal{syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM}...)
 	go func() {
 		s := <-sig
-		go func() {
-			_ = app.stopWorker(ctx, s != syscall.SIGQUIT)
-		}()
+		go cancel()
 		<-sig
 		os.Exit(128 + int(s.(syscall.Signal)))
 	}()

@@ -16,7 +16,7 @@ import (
 )
 
 type IApplication interface {
-	Init(ctx context.Context, conf string) error
+	Init(ctx context.Context, opts ...OptionFunc) error
 	Run(ctx context.Context) error
 	RegisterWorker(name string, worker IWorker)
 }
@@ -43,13 +43,17 @@ func New() IApplication {
 	}
 }
 
-func (app *Application) Init(ctx context.Context, conf string) (err error) {
+func (app *Application) Init(ctx context.Context, opts ...OptionFunc) (err error) {
+	opt := &option{}
+	for _, o := range opts {
+		o(opt)
+	}
+
 	app.initOnce.Do(func() {
-		if conf == "" {
-			conf = "conf/conf.yml"
-		}
-		if err = app.initConf(ctx, conf); err != nil {
-			return
+		if opt.conf != "" {
+			if err = app.initConf(ctx, opt.conf); err != nil {
+				return
+			}
 		}
 
 		if err = db.Init(ctx); err != nil {
