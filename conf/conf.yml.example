@@ -1,5 +1,5 @@
 db_zet:
-  switch: "must" # must表示强依赖db，auto表示在初始化尝试连接db但不影响后续，其他会初始化时跳过db连接
+  switch: "" # must表示强依赖db，auto表示在初始化尝试连接db但不影响后续，其他会初始化时跳过db连接
   host: ""
   port: ""
   user: ""
