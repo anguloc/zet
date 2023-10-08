@@ -2,6 +2,7 @@ package irequest
 
 import (
 	"context"
+	"time"
 
 	"github.com/anguloc/zet/internal/app/repo/zetdao/model"
 )
@@ -24,6 +25,9 @@ type Writer interface {
 
 	// UpdateStatusByIds 根据id和状态更新一条数据
 	UpdateStatusByIds(ctx context.Context, ids []int64, newStatus, oldStatus int32) (int64, error)
+
+	// CleanOldData 清理数据
+	CleanOldData(ctx context.Context, mark string, status int32, limitTime time.Time) (int64, error)
 }
 
 var (

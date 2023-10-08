@@ -20,6 +20,7 @@ func (w *Worker) Init(ctx context.Context) error {
 	if conf.Conf().Dmhy.IsSwitch() {
 		_ = NewCron().RegisterJob("3 * * * *", worker.NewDmhyRss())
 		_ = NewCron().RegisterJob("*/5 * * * *", worker.NewDmhyParse())
+		_ = NewCron().RegisterJob("20 1 * * *", worker.NewRequestClean())
 	}
 	return nil
 }
