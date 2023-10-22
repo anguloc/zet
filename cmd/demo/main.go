@@ -4,37 +4,54 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"sync"
+	"runtime"
 	"time"
 
 	"github.com/anguloc/zet/pkg/application"
 	"github.com/anguloc/zet/pkg/console"
-	"golang.org/x/sync/semaphore"
 )
+
+type Foo struct {
+	A struct {
+		B struct {
+			C string
+		}
+	}
+}
+
+func (f *Foo) Bar() string {
+	res := f.A.B.C
+	return res
+}
+
+func (f *Foo) Qux() string {
+	return f.A.B.C
+}
+
+func printMemoryStats() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Println("Total allocated in bytes:", m.TotalAlloc)
+	fmt.Println("Currently allocated in bytes:", m.Alloc)
+	fmt.Println("Number of mallocs:", m.Mallocs)
+	fmt.Println("Number of frees:", m.Frees)
+}
 
 func main() {
 	ctx := context.TODO()
 
-	wg := &sync.WaitGroup{}
-	t := semaphore.NewWeighted(3)
+	f := &Foo{}
+	_ = f
 
-	list := getList()
-
-	for _, s := range list {
-		wg.Add(1)
-		if aerr := t.Acquire(ctx, 1); aerr != nil {
-			wg.Done()
-			continue
-		}
-		go func(s string) {
-			defer wg.Done()
-			defer t.Release(1)
-			httpRes := mockHttp(s)
-			fmt.Printf("%s,res:%s\n", time.Now().Format(time.RFC3339), httpRes)
-		}(s)
+	for i := 0; i < 4096; i++ {
+		f.A.B.C += "a"
 	}
 
-	wg.Wait()
+	fmt.Println("-------------------------")
+	f.Bar()
+	fmt.Println("-------------------------")
+	f.Qux()
 
 	return
 	console.SetLevel(console.DebugLevel, console.InfoLevel, console.WarnLevel, console.ErrorLevel)
@@ -83,4 +100,27 @@ func touchPanic() {
 	}()
 	_ = res
 	fmt.Println(err)
+}
+
+func limit1() {
+	//wg := &sync.WaitGroup{}
+	//t := semaphore.NewWeighted(3)
+	//
+	//list := getList()
+	//
+	//for _, s := range list {
+	//	wg.Add(1)
+	//	if aerr := t.Acquire(ctx, 1); aerr != nil {
+	//		wg.Done()
+	//		continue
+	//	}
+	//	go func(s string) {
+	//		defer wg.Done()
+	//		defer t.Release(1)
+	//		httpRes := mockHttp(s)
+	//		fmt.Printf("%s,res:%s\n", time.Now().Format(time.RFC3339), httpRes)
+	//	}(s)
+	//}
+	//
+	//wg.Wait()
 }
