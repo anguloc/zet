@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 	"time"
 
@@ -40,6 +42,32 @@ func printMemoryStats() {
 
 func main() {
 	ctx := context.TODO()
+
+	out1 := &bytes.Buffer{}
+	out2 := &bytes.Buffer{}
+
+	var c *exec.Cmd
+	if runtime.GOOS == "windows" {
+		c = exec.Command("cmd", "/c", "start", "http://www.baidu.com")
+	} else if runtime.GOOS == "linux" {
+		c = exec.Command("cmd", "/c", "start", "http://www.baidu.com")
+	} else {
+		fmt.Println("no os")
+		return
+	}
+
+	c.Stdout = out1
+	c.Stderr = out2
+	err := c.Start()
+	if err != nil {
+		fmt.Println("err:", err)
+		return
+	}
+
+	fmt.Println(out1)
+	fmt.Println(out2)
+
+	return
 
 	f := &Foo{}
 	_ = f
