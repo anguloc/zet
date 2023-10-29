@@ -7,6 +7,7 @@ package irequest
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	model "github.com/anguloc/zet/internal/app/repo/zetdao/model"
 	gomock "github.com/golang/mock/gomock"
@@ -33,6 +34,21 @@ func NewMockRepo(ctrl *gomock.Controller) *MockRepo {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
+}
+
+// CleanOldData mocks base method.
+func (m *MockRepo) CleanOldData(ctx context.Context, mark string, status int32, limitTime time.Time) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CleanOldData", ctx, mark, status, limitTime)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CleanOldData indicates an expected call of CleanOldData.
+func (mr *MockRepoMockRecorder) CleanOldData(ctx, mark, status, limitTime interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CleanOldData", reflect.TypeOf((*MockRepo)(nil).CleanOldData), ctx, mark, status, limitTime)
 }
 
 // FirstByMarkStatus mocks base method.
@@ -138,6 +154,21 @@ func NewMockWriter(ctrl *gomock.Controller) *MockWriter {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockWriter) EXPECT() *MockWriterMockRecorder {
 	return m.recorder
+}
+
+// CleanOldData mocks base method.
+func (m *MockWriter) CleanOldData(ctx context.Context, mark string, status int32, limitTime time.Time) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CleanOldData", ctx, mark, status, limitTime)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CleanOldData indicates an expected call of CleanOldData.
+func (mr *MockWriterMockRecorder) CleanOldData(ctx, mark, status, limitTime interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CleanOldData", reflect.TypeOf((*MockWriter)(nil).CleanOldData), ctx, mark, status, limitTime)
 }
 
 // Insert mocks base method.
