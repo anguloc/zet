@@ -19,6 +19,11 @@ func Run(cmd *cobra.Command, args []string) {
 		if run {
 			println(time.Now().Format("15:04:05"))
 
+			robotgo.KeyDown("g")
+			time.Sleep(time.Second * 2)
+
+			continue
+
 			robotgo.KeyDown("e")
 			robotgo.KeyDown("d")
 
@@ -35,11 +40,11 @@ func Run(cmd *cobra.Command, args []string) {
 			robotgo.KeyUp("e")
 			robotgo.KeyUp("a")
 
-			//s = time.Now()
-			//robotgo.MouseClick("left")
-			//robotgo.KeyDown("j")
-			//e := time.Since(s)
-			//println(e.Milliseconds())
+			// s = time.Now()
+			// robotgo.MouseClick("left")
+			// robotgo.KeyDown("j")
+			// e := time.Since(s)
+			// println(e.Milliseconds())
 		}
 	}
 }
