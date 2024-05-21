@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/anguloc/zet/cmd/cli/click"
+	"github.com/anguloc/zet/cmd/cli/gbfr"
 	"github.com/anguloc/zet/cmd/cli/multiple"
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,7 @@ func Cmd() *cobra.Command {
 
 	cmd.AddCommand(multiple.Cmd())
 	cmd.AddCommand(click.Cmd())
+	cmd.AddCommand(gbfr.Cmd())
 
 	return cmd
 }

@@ -52,7 +52,7 @@ func Run(cmd *cobra.Command, args []string) {
 func switchRun() {
 	_ = hook.MouseDown
 	for ; ; time.Sleep(time.Second / 2) {
-		if robotgo.AddEvent("f4") {
+		if hook.AddEvent("f4") {
 			if run {
 				fmt.Println("停止")
 			} else {

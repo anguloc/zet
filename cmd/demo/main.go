@@ -4,7 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"math"
 	"net"
 	"os"
 	"os/exec"
@@ -12,8 +16,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/anguloc/zet/pkg/application"
 	"github.com/anguloc/zet/pkg/console"
+	"github.com/go-vgo/robotgo"
+	"github.com/gocolly/colly/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
@@ -145,8 +152,29 @@ type AzgadfRsp struct {
 	Total int
 }
 
+var ErrRoot = errors.New("root")
+
+var ErrA = errors.New("err a")
+var ErrB = errors.New("err b")
+
 func main() {
 	ctx := context.TODO()
+
+	windowsDemo(ctx)
+	return
+
+	ne := errors.Join(ErrRoot, ErrA)
+	fmt.Println(errors.Is(ne, ErrRoot))
+	fmt.Println(errors.Is(ErrA, ne))
+	fmt.Println(errors.Is(ne, ErrB))
+	fmt.Println(1231231)
+
+	content := bytes.NewReader([]byte("asdsad"))
+	doc, err := goquery.NewDocumentFromReader(content)
+	_ = doc
+	_ = err
+
+	return
 
 	m := map[string]*AzgadfRsp{}
 	key := "a"
@@ -354,6 +382,11 @@ func mockHttp(s string) string {
 	return "asd"
 }
 
+func collyDemo() {
+	c := colly.NewCollector()
+	_ = c
+}
+
 func handle(ctx context.Context, param *application.ScriptParam) {
 	for param.IsRun() {
 		time.Sleep(100 * time.Millisecond)
@@ -397,4 +430,150 @@ func limit1() {
 	// }
 	//
 	// wg.Wait()
+}
+
+func windowsDemo(ctx context.Context) {
+	var err error
+	_ = err
+
+	console.SetLevel(console.DebugLevel, console.InfoLevel, console.WarnLevel, console.ErrorLevel)
+
+	// fpid, err := robotgo.FindIds("Google")
+	// fpid, err := robotgo.FindIds("steam")
+	// if err != nil {
+	// 	fmt.Println("读取窗口错误", err)
+	// 	return
+	// }
+	// fmt.Println(fpid)
+
+	displaysNum := robotgo.DisplaysNum()
+	width, height := robotgo.GetScreenSize()
+	console.Infof("屏幕数量:%d,宽:%d,高:%d\n", displaysNum, width, height)
+
+	return
+
+	img1 := robotgo.CaptureImg(0, 0, width, height)
+	img2 := robotgo.CaptureImg(100, 0, width, height)
+	// img1RGBA := image.NewRGBA(img1.Bounds())
+	// img2RGBA := image.NewRGBA(img2.Bounds())
+	// a, err := FastCompare(img1RGBA, img2RGBA)
+	// fmt.Println(a)
+	// fmt.Println(err)
+
+	robotgo.Save(img1, "tmp/c.png")
+	robotgo.Save(img1, "tmp/c.jpeg")
+	// robotgo.Save(img2, "tmp/test_2.png")
+
+	a, b, err := ImgCompare1(img1, img2)
+	fmt.Println(a)
+	_ = b
+	fmt.Println(b)
+	fmt.Println(err)
+	// err = robotgo.Save(img, "tmp/test_1.png")
+	// if err != nil {
+	// 	fmt.Println("保存图片错误", err)
+	// 	return
+	// }
+	fmt.Println("succ")
+}
+
+func ImgCompare(img1, img2 image.Image) (int64, image.Image, error) {
+	bounds1 := img1.Bounds()
+	bounds2 := img2.Bounds()
+	if bounds1 != bounds2 {
+		return math.MaxInt64, nil, fmt.Errorf("image bounds not equal: %+v, %+v", img1.Bounds(), img2.Bounds())
+	}
+
+	accumError := int64(0)
+	resultImg := image.NewRGBA(image.Rect(
+		bounds1.Min.X,
+		bounds1.Min.Y,
+		bounds1.Max.X,
+		bounds1.Max.Y,
+	))
+
+	for x := bounds1.Min.X; x < bounds1.Max.X; x++ {
+		for y := bounds1.Min.Y; y < bounds1.Max.Y; y++ {
+			r1, g1, b1, a1 := img1.At(x, y).RGBA()
+			r2, g2, b2, a2 := img2.At(x, y).RGBA()
+
+			diff := int64(sqDiffUInt32(r1, r2))
+			diff += int64(sqDiffUInt32(g1, g2))
+			diff += int64(sqDiffUInt32(b1, b2))
+			diff += int64(sqDiffUInt32(a1, a2))
+
+			if diff > 0 {
+				accumError += diff
+				resultImg.Set(
+					bounds1.Min.X+x,
+					bounds1.Min.Y+y,
+					color.RGBA{R: 255, A: 255})
+			}
+		}
+	}
+
+	return int64(math.Sqrt(float64(accumError))), resultImg, nil
+}
+
+func ImgCompare1(img1, img2 image.Image) (int64, float64, error) {
+	bounds1 := img1.Bounds()
+	bounds2 := img2.Bounds()
+	if bounds1 != bounds2 {
+		return math.MaxInt64, 0, fmt.Errorf("image bounds not equal: %+v, %+v", img1.Bounds(), img2.Bounds())
+	}
+
+	accumError := int64(0)
+
+	for x := bounds1.Min.X; x < bounds1.Max.X; x++ {
+		for y := bounds1.Min.Y; y < bounds1.Max.Y; y++ {
+			r1, g1, b1, a1 := img1.At(x, y).RGBA()
+			r2, g2, b2, a2 := img2.At(x, y).RGBA()
+
+			diff := int64(sqDiffUInt32(r1, r2))
+			diff += int64(sqDiffUInt32(g1, g2))
+			diff += int64(sqDiffUInt32(b1, b2))
+			diff += int64(sqDiffUInt32(a1, a2))
+
+			if diff > 0 {
+				accumError += diff
+			}
+		}
+	}
+
+	n := bounds1.Max.X * bounds1.Max.Y
+	score := float64(accumError) / (4 * float64(n))
+
+	return int64(math.Sqrt(float64(accumError))), score, nil
+}
+
+func FastCompare(img1, img2 *image.RGBA) (int64, error) {
+	if img1.Bounds() != img2.Bounds() {
+		return 0, fmt.Errorf("image bounds not equal: %+v, %+v", img1.Bounds(), img2.Bounds())
+	}
+
+	accumError := int64(0)
+
+	for i := 0; i < len(img1.Pix); i++ {
+		accumError += int64(sqDiffUInt8(img1.Pix[i], img2.Pix[i]))
+	}
+
+	return int64(math.Sqrt(float64(accumError))), nil
+}
+
+// func FastCompare1(img1, img2 image.Image) (int64, error) {
+// 	bounds1 := img1.Bounds()
+// 	bounds2 := img2.Bounds()
+// 	if bounds1 != bounds2 {
+// 		return math.MaxInt64, fmt.Errorf("image bounds not equal: %+v, %+v", img1.Bounds(), img2.Bounds())
+// 	}
+// }
+
+func sqDiffUInt8(x, y uint8) uint64 {
+	d := uint64(x) - uint64(y)
+	return d * d
+}
+
+func sqDiffUInt32(x, y uint32) uint64 {
+	d := uint64(x) - uint64(y)
+	return d * d
 }
