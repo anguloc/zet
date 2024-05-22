@@ -133,7 +133,7 @@ help 帮助
 }
 
 func title() {
-	console.Infof("游戏主进程id:%d,是否获得游戏焦点:%t\n", mainPid, isFocus)
+	console.Infof("游戏主进程id:%d,是否获得游戏焦点:%t,是否执行:%t\n", mainPid, isFocus, running)
 }
 
 func listenGame(ctx context.Context) {
@@ -142,8 +142,6 @@ func listenGame(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Millisecond * 101):
-			isFocus = true
-			continue
 			if mainPid == 0 {
 				pids, err := robotgo.FindIds(gameTitle)
 				if err != nil {
@@ -160,10 +158,12 @@ func listenGame(ctx context.Context) {
 				continue
 			}
 
-			if !isFocus {
-				isFocus = mainPid != 0 && robotgo.GetPid() == mainPid
+			if isFocus != (robotgo.GetPid() == mainPid) {
+				isFocus = !isFocus
 				if isFocus {
 					console.Info("获得游戏焦点")
+				} else {
+					console.Info("失去游戏焦点")
 				}
 			}
 		}
@@ -176,10 +176,11 @@ func playGame(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		// case <-time.After(time.Millisecond * 97):
-		case <-time.After(time.Millisecond * 97 * 10):
+		case <-time.After(time.Millisecond * 97):
+			// case <-time.After(time.Millisecond * 97 * 10):
 			n++
 			if n == 30 {
+				n = 0
 				title()
 			}
 			// 非焦点或者游戏进程不存在，不执行操作
@@ -222,25 +223,25 @@ func (n *Node) Search() *Node {
 func (n *Node) compare(nn *Node, img1, img2 image.Image) bool {
 	_, f, _ := ImgCompare(img1, img2)
 	if nn.page == PageFeature1 {
-		return 900000 < f && f < 1100000
+		return 900000 < f && f < 3100000
 	}
 	if nn.page == PageFeature2 {
-		return 900000 < f && f < 2000000
+		return 900000 < f && f < 3000000
 	}
 	if nn.page == PageFeature2On {
-		return 2100000 < f && f < 2200000
+		return 2100000 < f && f < 3200000
 	}
 	if nn.page == PageFeature2Off {
-		return 260000 < f && f < 280000
+		return 260000 < f && f < 380000
 	}
 	if nn.page == PageFeature3 {
-		return 2800000 < f && f < 3000000
+		return 2800000 < f && f < 4000000
 	}
 	if nn.page == PageFeature3On {
-		return 1100000 < f && f < 1500000
+		return 1100000 < f && f < 2500000
 	}
 	if nn.page == PageFeature3Off {
-		return 1100000 < f && f < 1500000
+		return 1100000 < f && f < 2500000
 	}
 	return false
 }
@@ -284,22 +285,6 @@ func sqDiffUInt32(x, y uint32) uint64 {
 
 type featureFn func() image.Image
 type actionFn func(ctx context.Context)
-
-// const (
-// 	arCode = iota + 1
-// )
-//
-// type actionResult struct {
-// 	code int
-// }
-//
-// func (a actionResult) isNone() bool {
-// 	return a.code == arCode
-// }
-//
-// func noneRes() actionResult {
-// 	return actionResult{code: arCode}
-// }
 
 var ns *Node
 
@@ -378,12 +363,43 @@ func feature() (int, bool) {
 	}
 	console.Infof("[%s]匹配\n", n.title)
 
+	isEnd := false
 	// 当前是哪个特征
-	cn := n.Search()
-	if cn == nil {
-		return 0, false
+	for {
+		cn := n.Search()
+		if cn == nil {
+			return 0, false
+		}
+		console.Infof("[%s]匹配-特征：[%s]\n", n.title, cn.title)
+		switch cn.page {
+		case PageFeature2On:
+			// 下一步
+			console.Info("按enter")
+			_ = robotgo.KeyPress("enter")
+			time.Sleep(time.Millisecond * 100)
+			isEnd = true
+		case PageFeature2Off:
+			// 点击3
+			console.Info("按3")
+			_ = robotgo.KeyPress("3")
+			time.Sleep(time.Millisecond * 100)
+		case PageFeature3On:
+			// 下一步
+			console.Info("按enter")
+			_ = robotgo.KeyPress("enter")
+			time.Sleep(time.Millisecond * 100)
+			isEnd = true
+		case PageFeature3Off:
+			console.Info("按w")
+			_ = robotgo.KeyPress("w")
+			time.Sleep(time.Millisecond * 100)
+		default:
+			console.Warn("错误的类型")
+		}
+		if isEnd {
+			break
+		}
 	}
-	console.Infof("[%s]匹配-特征：[%s]\n", n.title, cn.title)
 
 	return 0, false
 }
