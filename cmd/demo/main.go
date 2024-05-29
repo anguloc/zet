@@ -610,6 +610,7 @@ func aesDemo() {
 	log.Println("明文1(hex)：", len(hex.EncodeToString(origData)))
 	// log.Println("密文(hex)：", hex.EncodeToString(encrypted))
 	log.Println("密文1(hex)：", len(hex.EncodeToString(encrypted)))
+	log.Println("密文1(base64)：", len(base64.StdEncoding.EncodeToString(encrypted)))
 
 	// log.Println("密文(base64)：", base64.StdEncoding.EncodeToString(encrypted))
 	decrypted := AesDecryptCBC(encrypted, key)

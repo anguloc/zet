@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"math"
 	"os"
 	"runtime"
@@ -15,8 +16,11 @@ import (
 
 	"github.com/anguloc/zet/pkg/application"
 	"github.com/anguloc/zet/pkg/console"
+	"github.com/anguloc/zet/pkg/safe"
 	"github.com/go-vgo/robotgo"
 	"github.com/spf13/cobra"
+	"gocv.io/x/gocv"
+	"gocv.io/x/gocv/contrib"
 )
 
 var (
@@ -40,6 +44,23 @@ func Run(cmd *cobra.Command, args []string) {
 		console.Error("只支持windows")
 		return
 	}
+
+	img1 := getPage2()
+	img2 := decodeToImg(featurePage2)
+
+	// img1 = getPage1()
+	// img2 = decodeToImg(featurePage1)
+
+	zas, _ := OpenCvImgCompare(img1, img2)
+	fmt.Println(zas)
+
+	robotgo.SaveJpeg(img1, safe.Path("tmp/img1.jpeg"))
+	robotgo.SaveJpeg(img2, safe.Path("tmp/img2.jpeg"))
+
+	// robotgo.SaveImg(featurePage2, safe.Path("tmp/aaaa.jpeg"))
+
+	return
+
 	displaysNum = robotgo.DisplaysNum()
 	width, height = robotgo.GetScreenSize()
 
@@ -54,9 +75,7 @@ func Run(cmd *cobra.Command, args []string) {
 
 	app := application.New()
 
-	app.RegisterWorker("script", application.NewScript(func(ctx context.Context, param *application.ScriptParam) {
-		handle(ctx)
-	}))
+	app.RegisterWorker("script", application.NewScript(handle))
 
 	_ = app.Init(ctx)
 
@@ -66,7 +85,7 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 }
 
-func handle(ctx context.Context) {
+func handle(ctx context.Context, param *application.ScriptParam) {
 	wg := &sync.WaitGroup{}
 
 	initNode()
@@ -94,6 +113,9 @@ func handle(ctx context.Context) {
 			wg.Wait()
 			return
 		default:
+			if !param.IsRun() {
+				continue
+			}
 			// TODO 有个bug，退出时这里会多次打印，顺序问题
 			fmt.Printf(">")
 			if scanner.Scan() {
@@ -142,9 +164,11 @@ func listenGame(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Millisecond * 101):
+			isFocus = true
+			continue
 			if mainPid == 0 {
 				pids, err := robotgo.FindIds(gameTitle)
-				if err != nil {
+				if err != nil || len(pids) == 0 {
 					console.Warn("搜索游戏进程错误:", err)
 					mainPid = 0
 					isFocus = false
@@ -221,6 +245,17 @@ func (n *Node) Search() *Node {
 }
 
 func (n *Node) compare(nn *Node, img1, img2 image.Image) bool {
+	corr, err := OpenCvImgCompare(img1, img2)
+	if nn.page == PageFeature2 {
+		fmt.Println(corr)
+	}
+	if err != nil {
+		return false
+	}
+	return corr > 0.98
+}
+
+func (n *Node) compare1(nn *Node, img1, img2 image.Image) bool {
 	_, f, _ := ImgCompare(img1, img2)
 	if nn.page == PageFeature1 {
 		return 900000 < f && f < 3100000
@@ -281,6 +316,25 @@ func ImgCompare(img1, img2 image.Image) (int64, float64, error) {
 func sqDiffUInt32(x, y uint32) uint64 {
 	d := uint64(x) - uint64(y)
 	return d * d
+}
+
+func OpenCvImgCompare(img1, img2 image.Image) (float64, error) {
+	img1Data, err := gocv.ImageToMatRGB(img1)
+	if err != nil {
+		return 0, err
+	}
+	img2Data, err := gocv.IMDecode(featurePage1, gocv.IMReadColor)
+	if err != nil {
+		return 0, err
+	}
+
+	i1, i2 := gocv.NewMat(), gocv.NewMat()
+	contrib.
+	h := contrib.NewRadialVarianceHash()
+	h.Compute(img1Data, &i1)
+	h.Compute(img2Data, &i2)
+	corr := h.Compare(i1, i2)
+	return corr, nil
 }
 
 type featureFn func() image.Image
@@ -353,6 +407,12 @@ func initNode() {
 func decodeToImg(b []byte) image.Image {
 	img, _, _ := image.Decode(bytes.NewReader(b))
 	return img
+}
+
+func encodeToBytes(img image.Image) []byte {
+	var b bytes.Buffer
+	_ = jpeg.Encode(&b, img, nil)
+	return b.Bytes()
 }
 
 func feature() (int, bool) {
