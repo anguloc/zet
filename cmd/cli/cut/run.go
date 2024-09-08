@@ -24,11 +24,11 @@ func Run(cmd *cobra.Command, args []string) {
 	console.Infof("截图数据,x:%d,y:%d,w:%d,h:%d\n", x, y, w, h)
 
 	if file == "" {
-		file = fmt.Sprintf("cut_%d_%d_%d_%d.png", x, y, w, h)
+		file = fmt.Sprintf("resource/cut_%d_%d_%d_%d.png", x, y, w, h)
 	}
 
 	img := robotgo.CaptureImg(x, y, w, h)
-	err := robotgo.Save(img, safe.Path(""))
+	err := robotgo.Save(img, safe.Path(file))
 	if err != nil {
 		console.Error("保存文件失败:", err)
 		return

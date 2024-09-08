@@ -329,7 +329,6 @@ func OpenCvImgCompare(img1, img2 image.Image) (float64, error) {
 	}
 
 	i1, i2 := gocv.NewMat(), gocv.NewMat()
-	contrib.
 	h := contrib.NewRadialVarianceHash()
 	h.Compute(img1Data, &i1)
 	h.Compute(img2Data, &i2)

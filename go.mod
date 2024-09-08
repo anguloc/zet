@@ -1,6 +1,6 @@
 module github.com/anguloc/zet
 
-go 1.21
+go 1.23
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -46,6 +46,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kbinani/screenshot v0.0.0-20230812210009-b87d31814237 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
+	github.com/looplab/fsm v1.0.2 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

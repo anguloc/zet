@@ -29,6 +29,7 @@ import (
 	"github.com/anguloc/zet/pkg/console"
 	"github.com/go-vgo/robotgo"
 	"github.com/gocolly/colly/v2"
+	"github.com/looplab/fsm"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
@@ -167,6 +168,9 @@ var ErrB = errors.New("err b")
 
 func main() {
 	ctx := context.TODO()
+
+	testFsm(ctx)
+	return
 
 	aesDemo()
 	return
@@ -739,4 +743,59 @@ func AesDecryptCFB(encrypted []byte, key []byte) (decrypted []byte) {
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(encrypted, encrypted)
 	return encrypted
+}
+
+func testFsm(ctx context.Context) {
+	f := fsm.NewFSM("init", fsm.Events{
+		{
+			Name: "create",
+			Src:  []string{"init"},
+			Dst:  "create",
+		},
+		{
+			Name: "init",
+			Src:  []string{"create"},
+			Dst:  "init",
+		},
+	}, fsm.Callbacks{
+		"create": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("执行create事件，当前状态:%s\n", event.Event)
+		},
+		"init": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("执行init事件，当前状态:%s\n", event.Event)
+		},
+
+		"before_create": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("create事件之前，当前状态:%s\n", event.Event)
+		},
+		"after_create": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("create事件之后，当前状态:%s\n", event.Event)
+		},
+
+		"before_event": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("before_event触发，当前状态:%s\n", event.Event)
+		},
+		"leave_state": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("leave_state触发，当前状态:%s\n", event.Event)
+		},
+		"enter_state": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("enter_state触发，当前状态:%s\n", event.Event)
+		},
+		"after_event": func(ctx context.Context, event *fsm.Event) {
+			fmt.Printf("after_event触发，当前状态:%s\n", event.Event)
+		},
+	})
+
+	err := f.Event(ctx, "create")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("---------------")
+
+	err = f.Event(ctx, "init")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 }
