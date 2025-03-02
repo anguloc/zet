@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
@@ -13,12 +14,15 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
+	"image/jpeg"
 	"io"
 	"log"
 	"math"
 	"net"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -32,6 +36,7 @@ import (
 	"github.com/looplab/fsm"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"golang.org/x/image/webp"
 )
 
 type Foo struct {
@@ -168,6 +173,17 @@ var ErrB = errors.New("err b")
 
 func main() {
 	ctx := context.TODO()
+
+	// src := "C:\\Users\\anguloc\\Desktop\\t1/00002.webp"
+	// src = "C:\\Users\\anguloc\\Desktop\\t1/1231.jpg"
+	// dst := "C:\\Users\\anguloc\\Desktop\\t1/00002_bak.jpeg"
+	// transFile(src, dst)
+	//
+	// return
+
+	testFile(ctx)
+
+	return
 
 	testFsm(ctx)
 	return
@@ -745,7 +761,25 @@ func AesDecryptCFB(encrypted []byte, key []byte) (decrypted []byte) {
 	return encrypted
 }
 
+type A struct {
+	Data string
+}
+
+func NewA(a int) (*A, error) {
+	if a == 1 {
+		return nil, fmt.Errorf("aa")
+	}
+	return &A{}, nil
+}
+
 func testFsm(ctx context.Context) {
+
+	var a int
+	a = 1
+	m, _ := NewA(a)
+	fmt.Println(m.Data)
+
+	return
 	f := fsm.NewFSM("init", fsm.Events{
 		{
 			Name: "create",
@@ -798,4 +832,186 @@ func testFsm(ctx context.Context) {
 		fmt.Println(err)
 	}
 
+}
+
+func jComic(ctx context.Context, srcDir, dstDir string) {
+	// 读源目录下第一层的html
+	// 图片在html下同层的同名文件夹下，目前都当作webp处理
+	// webp文件名都是{00001.webp}从00001开始
+	// 读文件后处理反爬后转到目标文件夹
+}
+
+func testFile(ctx context.Context) {
+	dir := "C:\\Users\\anguloc\\Desktop\\t2/"
+
+	// 读取目录下所有文件
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// var hf []string
+
+	type zas struct {
+		Src string
+		Dst string
+	}
+	var hf1 []zas
+	// 遍历文件和子目录
+	for _, file := range files {
+		filePath := fmt.Sprintf("C:\\Users\\anguloc\\Desktop\\2/%s", file.Name())
+		if file.IsDir() {
+			fmt.Println("存在文件夹")
+			// readFilesInDirectory(filePath) // 递归调用
+		} else {
+			// 处理文件
+			// fmt.Println(filePath)
+			if strings.HasSuffix(filePath, ".webp") && strings.HasPrefix(file.Name(), "00") {
+				// hf = append(hf, filePath)
+				hf1 = append(hf1, zas{filePath, dir1 + file.Name()})
+			}
+		}
+	}
+
+	for _, s := range hf1 {
+		transFile(s.Src, s.Dst)
+		fmt.Println(s)
+	}
+
+	fmt.Println(len(hf1))
+}
+
+func readFilesInDirectory(directory string) {
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// 遍历文件和子目录
+	for _, file := range files {
+		filePath := fmt.Sprintf("%s/%s", directory, file.Name())
+		if file.IsDir() {
+			readFilesInDirectory(filePath) // 递归调用
+		} else {
+			// 处理文件
+			fmt.Println(filePath)
+		}
+	}
+}
+
+func transFile(src, dst string) error {
+	// 打开源文件
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	// 图片解码
+	// img, _, err := image.Decode(sourceFile)
+	img, err := webp.Decode(sourceFile)
+	if err != nil {
+		fmt.Println("解码图片", err)
+		return err
+	}
+
+	// imgResource := image.NewRGBA(img.Bounds())
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+
+	result := image.NewRGBA(image.Rect(0, 0, width, height))
+	// preImgHeight := height / 4
+	// draw.Draw(result, image.Rect(0, 0*preImgHeight, width, 1*preImgHeight), img, image.Point{X: 0,
+	// 	Y: 3 * preImgHeight}, draw.Src)
+	// draw.Draw(result, image.Rect(0, 1*preImgHeight, width, 2*preImgHeight), img, image.Point{X: 0,
+	// 	Y: 2 * preImgHeight}, draw.Src)
+	// draw.Draw(result, image.Rect(0, 2*preImgHeight, width, 3*preImgHeight), img, image.Point{X: 0,
+	// 	Y: 1 * preImgHeight}, draw.Src)
+	// draw.Draw(result, image.Rect(0, 3*preImgHeight, width, 4*preImgHeight), img, image.Point{X: 0,
+	// 	Y: 0 * preImgHeight}, draw.Src)
+	//
+	// // 创建或覆盖目标文件
+	// destFile, err := os.Create(dst)
+	// if err != nil {
+	// 	fmt.Println("创建dst失败")
+	// 	return err
+	// }
+	// defer destFile.Close()
+	//
+	// err = jpeg.Encode(destFile, result, &jpeg.Options{Quality: 100})
+	// if err != nil {
+	// 	fmt.Println("写目标失败")
+	// }
+	// return err
+
+	// 1 -> 4
+	// 2 -> 3
+	// 3 -> 2
+	// 4 -> 1
+
+	// https://github.com/jiayaoO3O/18-comic-finder/blob/master/src/main/java/io/github/jiayaoO3O/finder/service/TaskService.java
+	rule := []int{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}
+
+	chapterId := 448545
+
+	piece := 10
+	if chapterId >= 268850 {
+		// src 文件名并去掉后缀
+		name := filepath.Base(src)
+		var photoId string
+		if strings.HasSuffix(name, ".webp") {
+			photoId = strings.TrimRight(name, ".webp")
+		}
+		// md5
+		s := fmt.Sprintf("%d%s", chapterId, photoId)
+		fmt.Println(s)
+		h := md5.Sum([]byte(s))
+		m := hex.EncodeToString(h[:])
+		c := m[len(m)-1]
+		mod := 10
+		if chapterId >= 421926 {
+			mod = 8
+		}
+		piece = rule[int(c)%mod]
+	}
+	// fmt.Println(c)
+	// fmt.Println(piece)
+
+	// piece := 4
+	preImgHeight := height / piece
+	for i := 0; i < piece; i++ {
+		var (
+			item  image.Rectangle
+			point image.Point
+		)
+		// 从上到下第几块
+		if i == piece-1 {
+			// 漫画的高度除以块数时,不一定是整数,此时漫画的第一块高度要算上剩余的像素.
+			item = image.Rect(0, i*preImgHeight, width, height)
+			point = image.Point{X: 0, Y: 0}
+		} else {
+			item = image.Rect(0, i*preImgHeight, width, (i+1)*preImgHeight)
+			point = image.Point{X: 0, Y: (piece - i - 1) * preImgHeight}
+		}
+		draw.Draw(result, item, img, point, draw.Src)
+	}
+
+	// 创建或覆盖目标文件
+	destFile, err := os.Create(dst)
+	if err != nil {
+		fmt.Println("创建dst失败")
+		return err
+	}
+	defer destFile.Close()
+
+	err = jpeg.Encode(destFile, result, &jpeg.Options{Quality: 100})
+	if err != nil {
+		fmt.Println("写目标失败")
+	}
+	return err
+
+	// 复制内容从源文件到目标文件
+	_, err = io.Copy(destFile, sourceFile)
+	return err
 }
