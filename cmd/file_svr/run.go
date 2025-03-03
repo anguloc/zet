@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/anguloc/zet/pkg/application"
@@ -25,12 +26,33 @@ func Run(cmd *cobra.Command, args []string) {
 	}
 
 	// 获取执行时，用户所在目录，读取下面的文件
-	dir, err := os.Getwd()
-	if err != nil {
-		console.Errorf("获取执行目录文件失败:[%s]\n", err)
+	dir, err := cmd.Flags().GetString("dir")
+	dir = strings.TrimSpace(dir)
+	if err != nil || dir == "" {
+		console.Warn("输入的目录异常，使用默认的当前执行目录")
+		dir, err = os.Getwd()
+		if err != nil {
+			console.Errorf("获取执行目录文件失败:[%s]\n", err)
+			return
+		}
+	}
+
+	// 校验下是不是目录
+	info, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		console.Errorf("路径[%s]不存在\n", dir)
 		return
 	}
-	console.Info("准备开启http文件服务")
+	if err != nil {
+		console.Errorf("检查路径[%s]时出错:[%v]\n", dir, err)
+		return
+	}
+	if !info.IsDir() {
+		console.Errorf("[%s]不是目录\n", dir)
+		return
+	}
+
+	console.Infof("准备开启http文件服务:[%s]\n", dir)
 
 	hosts, err := getLocalIPs()
 	if err != nil {
@@ -43,7 +65,6 @@ func Run(cmd *cobra.Command, args []string) {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", &index{dir: dir})
-	mux.Handle("/file", &file{dir: dir})
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),

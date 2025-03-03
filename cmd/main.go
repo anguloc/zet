@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/anguloc/zet/cmd/cli"
+	"github.com/anguloc/zet/cmd/file_svr"
 	"github.com/anguloc/zet/cmd/handle"
 	"github.com/anguloc/zet/cmd/rss"
 	"github.com/anguloc/zet/cmd/server"
@@ -24,6 +25,7 @@ func main() {
 	root.AddCommand(rss.Cmd())
 	root.AddCommand(cli.Cmd())
 	root.AddCommand(server.Cmd())
+	root.AddCommand(file_svr.Cmd())
 	root.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
 		console.Debugf("参数错误:%s\n", err)
 		return command.Usage()

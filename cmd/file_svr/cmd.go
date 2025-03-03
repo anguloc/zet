@@ -12,6 +12,7 @@ func Cmd() *cobra.Command {
 	}
 
 	cmd.Flags().IntP("port", "p", 41230, "监听的端口")
+	cmd.Flags().StringP("dir", "d", "", "监听的目录")
 
 	return cmd
 }
