@@ -5,6 +5,7 @@ go 1.23
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/allegro/bigcache/v3 v3.1.0
+	github.com/antchfx/htmlquery v1.2.3
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/go-vgo/robotgo v0.110.0
 	github.com/gocolly/colly/v2 v2.1.0
@@ -20,6 +21,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.24.0
 	gocv.io/x/gocv v0.36.1
+	golang.org/x/image v0.24.0
 	golang.org/x/sync v0.11.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.1-0.20230509030346-3715c134c25b
@@ -30,7 +32,6 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/antchfx/htmlquery v1.2.3 // indirect
 	github.com/antchfx/xmlquery v1.2.4 // indirect
 	github.com/antchfx/xpath v1.1.8 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -83,7 +84,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
-	golang.org/x/image v0.24.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect

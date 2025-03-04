@@ -9,7 +9,7 @@ type index struct {
 }
 
 func (i *index) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
-	i.dir = "C:\\Users\\anguloc\\Desktop\\t1"
+	// i.dir = "C:\\Users\\anguloc\\Desktop\\t1"
 	fs := http.FileServer(http.Dir(i.dir))
 	fs.ServeHTTP(writer, req)
 	// if err != nil {

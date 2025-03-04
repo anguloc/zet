@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -834,15 +835,59 @@ func testFsm(ctx context.Context) {
 
 }
 
-func jComic(ctx context.Context, srcDir, dstDir string) {
-	// 读源目录下第一层的html
-	// 图片在html下同层的同名文件夹下，目前都当作webp处理
-	// webp文件名都是{00001.webp}从00001开始
-	// 读文件后处理反爬后转到目标文件夹
+func copyAndRenameFile(src, dst string) error {
+	// 打开源文件
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("无法打开源文件: %v", err)
+	}
+	defer srcFile.Close()
+
+	// 创建目标文件
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("无法创建目标文件: %v", err)
+	}
+	defer dstFile.Close()
+
+	// 复制文件内容
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return fmt.Errorf("复制文件失败: %v", err)
+	}
+
+	// 确保文件内容已刷新到磁盘
+	err = dstFile.Sync()
+	if err != nil {
+		return fmt.Errorf("刷新文件失败: %v", err)
+	}
+
+	fmt.Printf("文件已复制并重命名: %s -> %s\n", src, dst)
+	return nil
 }
 
 func testFile(ctx context.Context) {
 	dir := "C:\\Users\\anguloc\\Desktop\\t2/"
+	dir1 := "C:\\Users\\anguloc\\Desktop\\t2/"
+
+	dir2 := `C:\Users\anguloc\Desktop\aa\result\a`
+	dir3 := `C:\Users\anguloc\Desktop\aa\result\b`
+
+	files1, err := os.ReadDir(dir2)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, f := range files1 {
+		tmp1 := strings.TrimRight(f.Name(), ".jpeg")
+		id, _ := strconv.Atoi(tmp1)
+		id += 434
+		fileName := fmt.Sprintf("%05d.jpeg", id)
+
+		copyAndRenameFile(fmt.Sprintf("%s/%s", dir2, f.Name()), fmt.Sprintf("%s/%s", dir3, fileName))
+	}
+
+	return
 
 	// 读取目录下所有文件
 	files, err := os.ReadDir(dir)
