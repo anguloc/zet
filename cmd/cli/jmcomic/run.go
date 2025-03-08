@@ -15,13 +15,35 @@ import (
 
 func Run(cmd *cobra.Command, args []string) {
 	ctx := context.Background()
-	dir, err := os.Getwd()
+
+	imgPath, err := cmd.Flags().GetString("img_path")
 	if err != nil {
-		console.Errorf("获取执行目录文件失败:[%s]\n", err)
+		console.Errorf("img_path参数错误[%s]", err)
 		return
 	}
+	if len(imgPath) > 0 {
+		chapterId, _ := cmd.Flags().GetUint64("chapter_id")
+		single(ctx, chapterId, imgPath)
+		return
+	}
+	dir, err := cmd.Flags().GetString("dir")
+	if err != nil || len(dir) == 0 {
+		dir, err = os.Getwd()
+		if err != nil {
+			console.Errorf("获取执行目录文件失败:[%s]\n", err)
+			return
+		}
+	}
+
+	// 判断是否为目录
+	if !isDir(dir) {
+		console.Errorf("[%s]不是目录或无法访问\n", dir)
+		return
+	}
+
 	jm := jmcomic.NewJmComic()
 
+	resultDir := filepath.Join(dir, "result")
 	fileList, err := jm.ReadDirJmHtml(ctx, dir)
 	if err != nil {
 		console.Errorf("读取文件列表失败[%s]\n", err)
@@ -31,7 +53,6 @@ func Run(cmd *cobra.Command, args []string) {
 		console.Info("没有获取到文件列表")
 		return
 	}
-	resultDir := filepath.Join(dir, "result")
 	for _, fd := range fileList {
 		photoList, pErr := jm.FindImageFiles(ctx, fd)
 		if pErr != nil {
@@ -54,9 +75,9 @@ func Run(cmd *cobra.Command, args []string) {
 			return
 		}
 		for _, pd := range photoList {
-			imageResource, err1 := jm.TransFile(ctx, fd, pd)
+			imageResource, err1 := jm.TransFile(ctx, fd.Id, pd)
 			if err1 != nil {
-				console.Errorf("生成图片失败[%s]\n]", pd.Path)
+				console.Errorf("生成图片失败[%s][%s]\n]", pd.Path, err1)
 				return
 			}
 			filePath := filepath.Join(resPath, fmt.Sprintf("%s.jpeg", pd.NameNotExt))
@@ -66,6 +87,35 @@ func Run(cmd *cobra.Command, args []string) {
 				return
 			}
 		}
+	}
+}
+
+// 单张图片
+func single(ctx context.Context, chapterId uint64, imgPath string) {
+	if chapterId <= 0 {
+		console.Errorf("章节id异常\n")
+		return
+	}
+	if !fileExists(imgPath) {
+		console.Errorf("[%s]文件不存在\n", imgPath)
+		return
+	}
+	jm := jmcomic.NewJmComic()
+	pd, err := jm.SingleImage(imgPath)
+	if err != nil {
+		console.Errorf("解析失败[%s]", err)
+		return
+	}
+	imageResource, err := jm.TransFile(ctx, chapterId, pd)
+	if err != nil {
+		console.Errorf("生成图片失败[%s]\n]", err)
+		return
+	}
+
+	filePath := filepath.Join(filepath.Dir(imgPath), fmt.Sprintf("%s.jpeg", pd.NameNotExt))
+	if err = writeImage(filePath, imageResource, 100); err != nil {
+		console.Errorf("生成图片失败[%s]", err)
+		return
 	}
 }
 
@@ -101,4 +151,20 @@ func genDir(dir string) error {
 		return fmt.Errorf("[%s]已存在，但不是文件夹", dir)
 	}
 	return nil
+}
+
+func isDir(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return fileInfo.IsDir()
+}
+
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	if err == nil {
+		return !info.IsDir()
+	}
+	return false
 }

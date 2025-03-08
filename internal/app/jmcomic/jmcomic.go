@@ -133,27 +133,35 @@ func (j JmComic) FindImageFiles(_ context.Context, fd *FileData) ([]*PhotoData, 
 
 	res := make([]*PhotoData, 0, len(matches))
 	for _, match := range matches {
-		photoName := filepath.Base(match)
-		photoExt := filepath.Ext(photoName)
-		idStr := photoName[0 : len(photoName)-len(photoExt)]
-		photoId, idErr := strconv.ParseUint(idStr, 10, 64)
-		if idErr != nil {
-			return nil, fmt.Errorf("photo id parse,id:[%s],err:%w", photoName, idErr)
+		pd, pdErr := j.SingleImage(match)
+		if pdErr != nil {
+			return nil, pdErr
 		}
-		res = append(res, &PhotoData{
-			Name:       photoName,
-			NameNotExt: idStr,
-			Id:         photoId,
-			IdStr:      idStr,
-			Path:       match,
-		})
+		res = append(res, pd)
 	}
 
 	return res, nil
 }
 
+func (j JmComic) SingleImage(imgPath string) (*PhotoData, error) {
+	photoName := filepath.Base(imgPath)
+	photoExt := filepath.Ext(photoName)
+	idStr := photoName[0 : len(photoName)-len(photoExt)]
+	photoId, idErr := strconv.ParseUint(idStr, 10, 64)
+	if idErr != nil {
+		return nil, fmt.Errorf("photo id parse,id:[%s],err:%w", photoName, idErr)
+	}
+	return &PhotoData{
+		Name:       photoName,
+		NameNotExt: idStr,
+		Id:         photoId,
+		IdStr:      idStr,
+		Path:       imgPath,
+	}, nil
+}
+
 // TransFile 读文件后处理反爬后转到目标文件夹
-func (j JmComic) TransFile(_ context.Context, fd *FileData, pd *PhotoData, ) (*image.RGBA, error) {
+func (j JmComic) TransFile(_ context.Context, chapterId uint64, pd *PhotoData, ) (*image.RGBA, error) {
 	// 打开源文件
 	sourceFile, err := os.Open(pd.Path)
 	if err != nil {
@@ -176,22 +184,18 @@ func (j JmComic) TransFile(_ context.Context, fd *FileData, pd *PhotoData, ) (*i
 	height := img.Bounds().Dy()
 
 	result := image.NewRGBA(image.Rect(0, 0, width, height))
-	piece := calcPiece(fd.Id, pd.IdStr)
+	piece := calcPiece(chapterId, pd.IdStr)
 	preImgHeight := height / piece
+	cut := height - preImgHeight*piece
+	// fmt.Printf("宽:%d,高:%d,块数量:%d,块高:%d,多余:%d\n", width, height, piece, preImgHeight, cut)
 	for i := 0; i < piece; i++ {
-		var (
-			item  image.Rectangle
-			point image.Point
-		)
-		// 从上到下第几块
-		if i == piece-1 {
-			// 漫画的高度除以块数时,不一定是整数,此时漫画的第一块高度要算上剩余的像素.
-			item = image.Rect(0, i*preImgHeight, width, height)
-			point = image.Point{X: 0, Y: 0}
-		} else {
-			item = image.Rect(0, i*preImgHeight, width, (i+1)*preImgHeight)
-			point = image.Point{X: 0, Y: (piece - i - 1) * preImgHeight}
+		firstCut := 0
+		if i != 0 {
+			// 漫画的高度除以块数时,不一定是整数,此时漫画的第一块高度要算上剩余的像素
+			firstCut = cut
 		}
+		item := image.Rect(0, i*preImgHeight+firstCut, width, (i+1)*preImgHeight+cut)
+		point := image.Point{X: 0, Y: (piece - i - 1) * preImgHeight}
 		draw.Draw(result, item, img, point, draw.Src)
 	}
 
